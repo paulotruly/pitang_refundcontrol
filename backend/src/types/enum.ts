@@ -1,0 +1,25 @@
+export enum Perfil{
+    COLABORADOR = "COLABORADOR",
+    GESTOR = "GESTOR",
+    FINANCEIRO = "FINANCEIRO",
+    ADMIN = "ADMIN"
+}
+
+export enum ReimbursementStatus {
+    RASCUNHO = "RASCUNHO",
+    ENVIADO = "ENVIADO",
+    APROVADO = "APROVADO",
+    REJEITADO = "REJEITADO",
+    PAGO = "PAGO",
+    CANCELADO = "CANCELADO"
+}
+
+export enum HistoryAction {
+    CRIADO = "CRIADO",
+    ATUALIZADO = "ATUALIZADO",
+    SUBMETIDO = "SUBMETIDO",
+    APROVADO = "APROVADO",
+    REJEITADO = "REJEITADO",
+    PAGO = "PAGO",
+    CANCELADO = "CANCELADO"
+}
