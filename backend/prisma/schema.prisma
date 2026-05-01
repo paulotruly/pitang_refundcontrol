@@ -1,13 +1,101 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
+}
+
+enum Perfil {
+  COLABORADOR
+  GESTOR
+  FINANCEIRO
+  ADMIN
+}
+
+enum ReimbursementStatus {
+  RASCUNHO
+  ENVIADO
+  APROVADO
+  REJEITADO
+  PAGO
+  CANCELADO
+}
+
+enum HistoryAction {
+  CREATED
+  UPDATED
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PAID
+  CANCELED
+}
+
+model User {
+  id             String          @id @default(uuid())
+  nome           String
+  email          String          @unique
+  senha          String
+  perfil         Perfil
+  criadoEm       DateTime        @default(now())
+  atualizadoEm   DateTime        @updatedAt
+
+  reimbursements Reimbursement[]
+  histories      History[]
+}
+
+model Category {
+  id             String          @id @default(uuid())
+  nome           String          @unique
+  ativo          Boolean         @default(true)
+  criadoEm       DateTime        @default(now())
+  atualizadoEm   DateTime        @updatedAt
+
+  reimbursements Reimbursement[]
+}
+
+model Reimbursement {
+  id                    String             @id @default(uuid())
+  solicitanteId         String
+  categoriaId           String
+  descricao             String
+  valor                 Float
+  dataDespesa           DateTime
+  status                ReimbursementStatus
+  justificativaRejeicao String?
+  criadoEm              DateTime           @default(now())
+  atualizadoEm          DateTime           @updatedAt
+
+  solicitante           User               @relation(fields: [solicitanteId], references: [id])
+  categoria             Category           @relation(fields: [categoriaId], references: [id])
+  attachments           Attachment[]
+  histories             History[]
+}
+
+model Attachment {
+  id            String        @id @default(uuid())
+  solicitacaoId String
+  nomeArquivo   String
+  urlArquivo    String
+  tipoArquivo   String
+  criadoEm      DateTime      @default(now())
+
+  solicitacao   Reimbursement @relation(fields: [solicitacaoId], references: [id])
+}
+
+model History {
+  id            String        @id @default(uuid())
+  solicitacaoId String
+  usuarioId     String
+  acao          HistoryAction
+  observacao    String?
+  criadoEm      DateTime      @default(now())
+
+  solicitacao   Reimbursement @relation(fields: [solicitacaoId], references: [id])
+  usuario       User          @relation(fields: [usuarioId], references: [id])
 }

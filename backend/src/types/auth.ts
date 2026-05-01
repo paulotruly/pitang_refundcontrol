@@ -1,4 +1,4 @@
-import { Perfil } from "./enum.js"
+import { Perfil } from "../prisma.js";
 
 // definindo a forma do objeto que vai dentro do token JWT
 export interface JwtPayload {
