@@ -224,3 +224,23 @@ export const cancelReimbursement = async (req: Request, res: Response) => {
 
     res.json(updated);
 };
+
+export const getReimbursementHistory = async (req: Request, res: Response) => {
+    const { sub: userId, perfil } = req.user;
+    const id = req.params.id as string;
+    const existing = await prisma.reimbursement.findUnique({ where: { id } });
+
+    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada" });
+
+    if (perfil !== "ADMIN" && perfil !== "GESTOR" && perfil !== "FINANCEIRO" && existing.solicitanteId !== userId) {
+        return res.status(403).json({ message: "Sem permissão" });
+    }
+
+    const history = await prisma.history.findMany({
+        where: { solicitacaoId: id },
+        include: { usuario: {select: {nome: true, email: true}} },
+        orderBy: { criadoEm: "asc" },
+    });
+
+    res.json(history);
+}
