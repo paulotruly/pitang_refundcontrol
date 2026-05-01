@@ -3,18 +3,17 @@ import { prisma } from "../prisma.js"
 
 export const createReimbursement = async (req: Request, res: Response) => {
     const { categoriaId, descricao, valor, dataDespesa } = req.body;
-    
-    // verificando se a categoria existe
+
     const category = await prisma.category.findUnique({
         where: {id: categoriaId},
     })
     if (!category) {
-        return res.status(400).json({ message: "Categoria não existe" });
+        return res.status(400).json({ message: "Categoria inválida", statusCode: 400, error: "Bad Request" });
     }
     if (!category.ativo) {
-        return res.status(400).json({ message: "Categoria inativa não pode ser usada" });
+        return res.status(400).json({ message: "Categoria inativa", statusCode: 400, error: "Bad Request" });
     }
-   
+
     const reimbursement = await prisma.reimbursement.create({
         data: {
             solicitanteId: req.user.sub,
@@ -65,18 +64,18 @@ export const getReimbursementById = async (req: Request, res: Response) => {
 
     const reimbursement = await prisma.reimbursement.findUnique({
         where: { id },
-        include: { 
-            categoria: true, 
-            solicitante: { select: { nome: true, email: true } } 
+        include: {
+            categoria: true,
+            solicitante: { select: { nome: true, email: true } }
         },
     });
 
     if (!reimbursement) {
-        return res.status(404).json({ message: "Solicitação não encontrada" });
+        return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
     }
 
     if (perfil !== "ADMIN" && reimbursement.solicitanteId !== userId) {
-        return res.status(403).json({ message: "Sem permissão para ver esta solicitação" });
+        return res.status(403).json({ message: "Sem permissão", statusCode: 403, error: "Forbidden" });
     }
     res.json(reimbursement);
 };
@@ -86,16 +85,16 @@ export const updateReimbursement = async (req: Request, res: Response) => {
     const id = req.params.id as string;
 
     const existing = await prisma.reimbursement.findUnique({ where: { id } });
-    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada" });
-    if (existing.solicitanteId !== userId) return res.status(403).json({ message: "Sem permissão" });
-    if (existing.status !== "RASCUNHO") return res.status(400).json({ message: "Só pode editar em RASCUNHO" });
+    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
+    if (existing.solicitanteId !== userId) return res.status(403).json({ message: "Sem permissão", statusCode: 403, error: "Forbidden" });
+    if (existing.status !== "RASCUNHO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
 
     const { categoriaId, descricao, valor, dataDespesa } = req.body;
 
     if (categoriaId) {
         const category = await prisma.category.findUnique({ where: { id: categoriaId } });
-        if (!category) return res.status(400).json({ message: "Categoria não existe" });
-        if (!category.ativo) return res.status(400).json({ message: "Categoria inativa não pode ser usada" });
+        if (!category) return res.status(400).json({ message: "Categoria inválida", statusCode: 400, error: "Bad Request" });
+        if (!category.ativo) return res.status(400).json({ message: "Categoria inativa", statusCode: 400, error: "Bad Request" });
     }
 
     const data: any = {};
@@ -118,9 +117,9 @@ export const submitReimbursement = async (req: Request, res: Response) => {
     const id = req.params.id as string;
 
     const existing = await prisma.reimbursement.findUnique({ where: { id } });
-    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada" });
-    if (existing.solicitanteId !== userId) return res.status(403).json({ message: "Sem permissão" });
-    if (existing.status !== "RASCUNHO") return res.status(400).json({ message: "Só pode enviar solicitação em RASCUNHO" });
+    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
+    if (existing.solicitanteId !== userId) return res.status(403).json({ message: "Sem permissão", statusCode: 403, error: "Forbidden" });
+    if (existing.status !== "RASCUNHO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
 
     const updated = await prisma.reimbursement.update({
         where: { id },
@@ -138,11 +137,11 @@ export const approveReimbursement = async (req: Request, res: Response) => {
     const { perfil } = req.user;
     const id = req.params.id as string;
 
-    if (perfil !== "GESTOR") return res.status(403).json({ message: "Apenas gestores podem aprovar" });
+    if (perfil !== "GESTOR") return res.status(403).json({ message: "Perfil inválido", statusCode: 403, error: "Forbidden" });
 
     const existing = await prisma.reimbursement.findUnique({ where: { id } });
-    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada" });
-    if (existing.status !== "ENVIADO") return res.status(400).json({ message: "Só pode aprovar solicitação ENVIADA" });
+    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
+    if (existing.status !== "ENVIADO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
 
     const updated = await prisma.reimbursement.update({
         where: { id },
@@ -161,13 +160,13 @@ export const rejectReimbursement = async (req: Request, res: Response) => {
     const id = req.params.id as string;
     const { justificativaRejeicao } = req.body;
 
-    if (perfil !== "GESTOR") return res.status(403).json({ message: "Apenas gestores podem rejeitar" });
+    if (perfil !== "GESTOR") return res.status(403).json({ message: "Perfil inválido", statusCode: 403, error: "Forbidden" });
 
     const existing = await prisma.reimbursement.findUnique({ where: { id } });
-    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada" });
-    if (existing.status !== "ENVIADO") return res.status(400).json({ message: "Só pode rejeitar solicitação ENVIADA" });
+    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
+    if (existing.status !== "ENVIADO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
     if (!justificativaRejeicao || justificativaRejeicao.trim() === "") {
-        return res.status(400).json({ message: "Justificativa é obrigatória" });
+        return res.status(400).json({ message: "Justificativa obrigatória", statusCode: 400, error: "Bad Request" });
     }
 
     const updated = await prisma.reimbursement.update({
@@ -186,11 +185,11 @@ export const payReimbursement = async (req: Request, res: Response) => {
     const { perfil } = req.user;
     const id = req.params.id as string;
 
-    if (perfil !== "FINANCEIRO") return res.status(403).json({ message: "Apenas financeiro pode marcar como pago" });
+    if (perfil !== "FINANCEIRO") return res.status(403).json({ message: "Perfil inválido", statusCode: 403, error: "Forbidden" });
 
     const existing = await prisma.reimbursement.findUnique({ where: { id } });
-    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada" });
-    if (existing.status !== "APROVADO") return res.status(400).json({ message: "Só pode pagar solicitação APROVADA" });
+    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
+    if (existing.status !== "APROVADO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
 
     const updated = await prisma.reimbursement.update({
         where: { id },
@@ -209,9 +208,9 @@ export const cancelReimbursement = async (req: Request, res: Response) => {
     const id = req.params.id as string;
 
     const existing = await prisma.reimbursement.findUnique({ where: { id } });
-    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada" });
-    if (existing.solicitanteId !== userId) return res.status(403).json({ message: "Sem permissão" });
-    if (existing.status !== "RASCUNHO") return res.status(400).json({ message: "Só pode cancelar solicitação em RASCUNHO" });
+    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
+    if (existing.solicitanteId !== userId) return res.status(403).json({ message: "Sem permissão", statusCode: 403, error: "Forbidden" });
+    if (existing.status !== "RASCUNHO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
 
     const updated = await prisma.reimbursement.update({
         where: { id },
@@ -230,10 +229,10 @@ export const getReimbursementHistory = async (req: Request, res: Response) => {
     const id = req.params.id as string;
     const existing = await prisma.reimbursement.findUnique({ where: { id } });
 
-    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada" });
+    if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
 
     if (perfil !== "ADMIN" && perfil !== "GESTOR" && perfil !== "FINANCEIRO" && existing.solicitanteId !== userId) {
-        return res.status(403).json({ message: "Sem permissão" });
+        return res.status(403).json({ message: "Sem permissão", statusCode: 403, error: "Forbidden" });
     }
 
     const history = await prisma.history.findMany({

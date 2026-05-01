@@ -19,7 +19,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
         where: { id: req.params.id as string },
     });
     if (!category) {
-        return res.status(404).json({ message: "Category not found" });
+        return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
     }
     res.json(category);
 };
@@ -34,7 +34,7 @@ export const updateCategory = async (req: Request, res: Response) => {
         });
         res.json(updatedCategory);
     } catch {
-        return res.status(404).json({ message: "Category not found" });
+        return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
     }
 };
 
@@ -45,6 +45,6 @@ export const deleteCategory = async (req: Request, res: Response) => {
         });
         res.status(204).send();
     } catch {
-        return res.status(404).json({ message: "Category not found" });
+        return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
     }
 };

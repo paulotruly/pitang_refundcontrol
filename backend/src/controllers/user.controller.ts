@@ -23,7 +23,7 @@ export const getUserById = async (req: Request, res: Response) => {
         omit: { senha: true },
     });
     if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "Usuário não encontrado", statusCode: 404, error: "Not Found" });
     }
     res.json(user);
 };
@@ -42,7 +42,7 @@ export const updateUser = async (req: Request, res: Response) => {
         });
         res.json(updatedUser);
     } catch {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "Usuário não encontrado", statusCode: 404, error: "Not Found" });
     }
 };
 
@@ -53,6 +53,6 @@ export const deleteUser = async (req: Request, res: Response) => {
         });
         res.status(204).send();
     } catch {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "Usuário não encontrado", statusCode: 404, error: "Not Found" });
     }
 };
