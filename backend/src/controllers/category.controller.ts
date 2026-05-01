@@ -33,8 +33,13 @@ export const updateCategory = async (req: Request, res: Response) => {
             data,
         });
         res.json(updatedCategory);
-    } catch {
-        return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
+    } catch (err: any) {
+        // P2025 = Prisma: "registro não encontrado" → retorna 404 específico
+        // qualquer outro erro → relança pro error-handler global (500)
+        if (err.code === "P2025") {
+            return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
+        }
+        throw err;
     }
 };
 
@@ -44,7 +49,12 @@ export const deleteCategory = async (req: Request, res: Response) => {
             where: { id: req.params.id as string },
         });
         res.status(204).send();
-    } catch {
-        return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
+    } catch (err: any) {
+        // P2025 = Prisma: "registro não encontrado" → retorna 404 específico
+        // qualquer outro erro → relança pro error-handler global (500)
+        if (err.code === "P2025") {
+            return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
+        }
+        throw err;
     }
 };

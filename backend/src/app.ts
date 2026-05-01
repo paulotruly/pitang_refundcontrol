@@ -5,6 +5,7 @@ import categoryRoutes from './routes/category.routes.js';
 import reimbursementRoutes from './routes/reimbursement.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import { authMiddleware } from './middlewares/auth.middleware.js';
+import { errorHandler } from './middlewares/error-handler.middleware.js';
 
 const app = express();
 
@@ -18,5 +19,8 @@ app.use('/auth', authRoutes);
 app.get("/", (_req, res) => {
     res.json({message: "API rodando"})
 });
+
+// middleware global de erro — ÚLTIMO de tudo, captura erros não tratados
+app.use(errorHandler);
 
 export default app;

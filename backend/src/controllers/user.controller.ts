@@ -41,8 +41,11 @@ export const updateUser = async (req: Request, res: Response) => {
             omit: { senha: true },
         });
         res.json(updatedUser);
-    } catch {
-        return res.status(404).json({ message: "Usuário não encontrado", statusCode: 404, error: "Not Found" });
+    } catch (err: any) {
+        if (err.code === "P2025") {
+            return res.status(404).json({ message: "Usuário não encontrado", statusCode: 404, error: "Not Found" });
+        }
+        throw err;
     }
 };
 
@@ -52,7 +55,10 @@ export const deleteUser = async (req: Request, res: Response) => {
             where: { id: req.params.id as string },
         });
         res.status(204).send();
-    } catch {
-        return res.status(404).json({ message: "Usuário não encontrado", statusCode: 404, error: "Not Found" });
+    } catch (err: any) {
+        if (err.code === "P2025") {
+            return res.status(404).json({ message: "Usuário não encontrado", statusCode: 404, error: "Not Found" });
+        }
+        throw err;
     }
 };
