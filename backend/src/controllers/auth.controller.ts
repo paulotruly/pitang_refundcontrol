@@ -28,21 +28,24 @@ export const register = async (req: Request, res: Response) => {
 }
 
 export const login = async (req: Request, res: Response) => {
-    const { email, senha } = req.body;
+    try{
+        const { email, senha } = req.body;
+        const user = await prisma.user.findUnique({ where: { email } });
 
-    const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) {
+            return res.status(401).json({ message: "Credenciais inválidas", statusCode: 401, error: "Unauthorized"});
+        }
 
-    if (!user) {
-        return res.status(400).json({ message: "Credenciais inválidas", statusCode: 400, error: "Bad Request" });
+        const isValid = await bcrypt.compare(senha, user.senha);
+        if (!isValid) {
+            return res.status(401).json({ message: "Credenciais inválidas", statusCode: 401, error: "Unauthorized" });
+        }
+
+        const token = jwt.sign({ sub: user.id, email: user.email, perfil: user.perfil }, SECRET, { expiresIn: '1h' });
+
+        const { senha: _, ...userWithoutPassword } = user;
+        res.json({ token, user: userWithoutPassword });
+    } catch (error) {
+        throw error;
     }
-
-    const isValid = await bcrypt.compare(senha, user.senha);
-    if (!isValid) {
-        return res.status(400).json({ message: "Credenciais inválidas", statusCode: 400, error: "Bad Request" });
-    }
-
-    const token = jwt.sign({ sub: user.id, email: user.email, perfil: user.perfil }, SECRET, { expiresIn: '1h' });
-
-    const { senha: _, ...userWithoutPassword } = user;
-    res.json({ token, user: userWithoutPassword });
 }

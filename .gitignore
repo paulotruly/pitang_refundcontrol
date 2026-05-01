@@ -1,2 +1,4 @@
 desafio-estags-pitang.html
 requisitos.txt
+backend/generated/prisma
+backend/prisma/test.db

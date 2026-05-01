@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach } from "@jest/globals";
 import request from "supertest";
 import app from "../src/app.js";
-import { Perfil, prisma } from "../src/prisma.js";
-import bcrypt from "bcrypt";
+import { Perfil } from "../src/prisma.js";
 import { createTestUser } from "./helpers.js";
 
 describe("POST /users", () => {
@@ -52,6 +51,6 @@ describe("POST /users", () => {
         perfil: "COLABORADOR"
       });
 
-    expect(res.status).toBe(400); // espera um 400 Bad Request
+    expect(res.status).toBe(400); // espera um 400 Bad
   });
 });

@@ -1,19 +1,19 @@
-import { beforeAll, beforeEach, afterAll } from '@jest/globals';
+import { beforeEach, afterAll } from '@jest/globals';
 import { execSync } from "child_process";
 import { prisma } from "../src/prisma.js";
 import dotenv from "dotenv";
 
 // em suma, o 'setup' prepara o ambiente de teste que roda antes de todos os testes que serão executados
-
 dotenv.config();
-process.env.DATABASE_URL = "file::memory:?cache=shared"; // banco em memória para testes
 
-// cria tabelas no banco de teste antes de todos os testes
-beforeAll(() => {
-  execSync("npx prisma db push --force", {
-    env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL }
+// roda prisma db push apenas uma vez
+if (!process.env.TEST_DB_INITIALIZED) {
+  execSync(`npx prisma db push --url "${process.env.DATABASE_URL}" --force-reset`, {
+    stdio: "inherit",
+    env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL}
   });
-});
+  process.env.TEST_DB_INITIALIZED = "true";
+}
 
 // limpa todas as tabelas antes de cada teste (isolamento)
 beforeEach(async () => {

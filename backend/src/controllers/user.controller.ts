@@ -1,15 +1,22 @@
 import type { Request, Response } from "express";
 import { hash } from "bcrypt";
-import { prisma } from "../prisma.js"
+import { Prisma, prisma } from "../prisma.js"
 
 export const createUser = async (req: Request, res: Response) => {
+    try {
     const { nome, email, senha, perfil } = req.body;
     const hashedPassword = await hash(senha, 10);
     const user = await prisma.user.create({
-        data: { nome, email, senha: hashedPassword, perfil },
-        omit: { senha: true },
+      data: { nome, email, senha: hashedPassword, perfil },
     });
     res.status(201).json(user);
+  } catch (error) {
+    // erro de e-mail duplicado (Prisma P2002)
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return res.status(400).json({ message: "Email já cadastrado", statusCode: 401, error: "Unauthorized" });
+    }
+    throw error;
+  }
 };
 
 export const getUsers = async (_req: Request, res: Response) => {

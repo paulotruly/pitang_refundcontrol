@@ -8,8 +8,8 @@
     "dev": "tsx watch server.ts",
     "build": "tsc",
     "start": "node dist/server.ts",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch"
+    "test": "cross-env DATABASE_URL=file:./prisma/test.db NODE_OPTIONS=--experimental-vm-modules jest",
+    "test:watch": "cross-env DATABASE_URL=file:./prisma/test.db NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "keywords": [],
   "author": "",

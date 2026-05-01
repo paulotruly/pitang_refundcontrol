@@ -10,11 +10,12 @@ const JWT_SECRET = process.env.JWT_SECRET || "123456";
 // cria um usuário e retorna o usuário + token JWT
 export async function createTestUser(perfil: Perfil = Perfil.COLABORADOR) {
   const senhaHash = await bcrypt.hash("senha123", 10);
+  const uniqueId = Date.now() + Math.random().toString(36).substring(2, 9); // sufixo único
   
   const user = await prisma.user.create({
     data: {
       nome: `Teste ${perfil}`,
-      email: `teste-${perfil.toLowerCase()}@email.com`,
+      email: `teste-${perfil.toLowerCase()}-${uniqueId}@email.com`,
       senha: senhaHash,
       perfil
     }

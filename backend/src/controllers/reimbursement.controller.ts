@@ -185,7 +185,7 @@ export const payReimbursement = async (req: Request, res: Response) => {
     const { perfil } = req.user;
     const id = req.params.id as string;
 
-    if (perfil !== "FINANCEIRO") return res.status(403).json({ message: "Perfil inválido", statusCode: 403, error: "Forbidden" });
+    if (perfil !== "FINANCEIRO") return res.status(401).json({ message: "Perfil inválido", statusCode: 401, error: "Unauthorized" });
 
     const existing = await prisma.reimbursement.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
