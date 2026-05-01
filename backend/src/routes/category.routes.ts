@@ -3,13 +3,15 @@ import { createCategory, getCategory, getCategoryById, deleteCategory, updateCat
 import { validate } from "../middlewares/validate.middleware.js";
 import { createCategorySchema } from "../validations/category.validation.js";
 import { roleMiddleware } from "../middlewares/role.middleware.js";
+import { validateParams } from "../middlewares/validate-params.middleware.js";
+import { idParamsSchema } from "../validations/params.validation.js";
 
 const categoryRoutes = Router();
 
 categoryRoutes.get('/', getCategory);
-categoryRoutes.get('/:id', getCategoryById);
+categoryRoutes.get('/:id', validateParams(idParamsSchema), getCategoryById);
 categoryRoutes.post('/', roleMiddleware("ADMIN"), validate(createCategorySchema), createCategory);
-categoryRoutes.put('/:id', roleMiddleware("ADMIN"), updateCategory);
-categoryRoutes.delete('/:id', deleteCategory);
+categoryRoutes.put('/:id', validateParams(idParamsSchema), roleMiddleware("ADMIN"), updateCategory);
+categoryRoutes.delete('/:id', validateParams(idParamsSchema), deleteCategory);
 
 export default categoryRoutes;
