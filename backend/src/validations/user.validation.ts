@@ -7,5 +7,10 @@ export const createUserSchema = z.object({
     perfil: z.enum(["COLABORADOR", "GESTOR", "FINANCEIRO", "ADMIN"]),
 });
 
+export const loginSchema = z.object({
+    email: z.string().trim().pipe(z.email()),
+    senha: z.string().min(1),
+});
+
 // serve pra validar o body da requisição antes de chegar no controller
 export type CreateUserInput = z.infer<typeof createUserSchema>;
