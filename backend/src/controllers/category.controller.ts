@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import { hash } from "bcrypt";
 import { prisma } from "../prisma.js"
 
 export const createCategory = async (req: Request, res: Response) => {
