@@ -6,8 +6,12 @@ import reimbursementRoutes from './routes/reimbursement.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import { authMiddleware } from './middlewares/auth.middleware.js';
 import { errorHandler } from './middlewares/error-handler.middleware.js';
+import path from 'path';
 
 const app = express();
+
+// serve pra tornar a pasta uploads/ acessível na url "/uploads/arquivo.extensao"
+app.use("/uploads", express.static(path.resolve("uploads")));
 
 app.use(cors());
 app.use(express.json());

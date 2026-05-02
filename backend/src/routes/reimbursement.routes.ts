@@ -3,12 +3,12 @@ import { createReimbursement, getReimbursement, getReimbursementById, updateReim
 import { validate } from "../middlewares/validate.middleware.js";
 import { createReimbursementSchema, updateReimbursementSchema, rejectSchema } from "../validations/reimbursement.validation.js";
 import { roleMiddleware } from "../middlewares/role.middleware.js";
-import { createAttachmentSchema } from "../validations/attachment.validation.js";
 import { createAttachment, listAttachments } from "../controllers/attachment.controller.js";
 import { validateParams } from "../middlewares/validate-params.middleware.js";
 import { idParamsSchema } from "../validations/params.validation.js";
 import { reembolsoQuerySchema } from "../validations/query.validation.js";
 import { validateQuery } from "../middlewares/validate-query.middleware.js";
+import { upload } from "../middlewares/upload.middleware.js";
 
 const reimbursementRoutes = Router();
 
@@ -24,7 +24,8 @@ reimbursementRoutes.post('/:id/reject', validateParams(idParamsSchema), roleMidd
 reimbursementRoutes.post('/:id/pay', validateParams(idParamsSchema), roleMiddleware("FINANCEIRO"), payReimbursement);
 reimbursementRoutes.post('/:id/cancel', validateParams(idParamsSchema), cancelReimbursement);
 
-reimbursementRoutes.post('/:id/attachments', validateParams(idParamsSchema), validate(createAttachmentSchema), createAttachment);
+                                                                            // espera um arquivo chamado
+reimbursementRoutes.post('/:id/attachments', validateParams(idParamsSchema), upload.single("comprovante"), createAttachment);
 reimbursementRoutes.get('/:id/attachments', validateParams(idParamsSchema), listAttachments);
 
 export default reimbursementRoutes;

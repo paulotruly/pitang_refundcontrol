@@ -15,7 +15,7 @@ async function main() {
     await prisma.attachment.deleteMany();
     await prisma.reimbursement.deleteMany();
     await prisma.category.deleteMany();
-    await prisma.user.deleteMany();
+    await prisma.user.deleteMany(); 
 
     // --- CRIA USUÁRIOS ---
     console.log("Criando usuários...");
