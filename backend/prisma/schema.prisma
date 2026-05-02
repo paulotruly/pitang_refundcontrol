@@ -54,9 +54,10 @@ model Category {
   id             String          @id @default(uuid())
   nome           String          @unique
   ativo          Boolean         @default(true)
+  valorMaximo    Float?
   criadoEm       DateTime        @default(now())
   atualizadoEm   DateTime        @updatedAt
-
+  deletadoEm     DateTime?
   reimbursements Reimbursement[]
 }
 
@@ -71,6 +72,7 @@ model Reimbursement {
   justificativaRejeicao String?
   criadoEm              DateTime           @default(now())
   atualizadoEm          DateTime           @updatedAt
+  deletadoEm            DateTime?
 
   solicitante           User               @relation(fields: [solicitanteId], references: [id])
   categoria             Category           @relation(fields: [categoriaId], references: [id])
@@ -110,3 +112,4 @@ model RefreshToken {
   expiraEm  DateTime
   revogado  Boolean  @default(false)
 }
+

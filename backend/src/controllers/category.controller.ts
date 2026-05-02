@@ -10,13 +10,15 @@ export const createCategory = async (req: Request, res: Response) => {
 };
 
 export const getCategory = async (_req: Request, res: Response) => {
-    const categories = await prisma.category.findMany();
+    const categories = await prisma.category.findMany({
+        where: { deletadoEm: null }
+    });
     res.json(categories);
 };
 
 export const getCategoryById = async (req: Request, res: Response) => {
     const category = await prisma.category.findUnique({
-        where: { id: req.params.id as string },
+        where: { id: req.params.id as string, deletadoEm: null },
     });
     if (!category) {
         return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
@@ -29,7 +31,7 @@ export const updateCategory = async (req: Request, res: Response) => {
     const data: { nome?: string; ativo?: boolean; } = { nome, ativo };
     try {
         const updatedCategory = await prisma.category.update({
-            where: { id: req.params.id as string },
+            where: { id: req.params.id as string, deletadoEm: null },
             data,
         });
         res.json(updatedCategory);
@@ -44,17 +46,21 @@ export const updateCategory = async (req: Request, res: Response) => {
 };
 
 export const deleteCategory = async (req: Request, res: Response) => {
-    try {
-        await prisma.category.delete({
-            where: { id: req.params.id as string },
-        });
-        res.status(204).send();
-    } catch (err: any) {
-        // P2025 = Prisma: "registro não encontrado" → retorna 404 específico
-        // qualquer outro erro → relança pro error-handler global (500)
-        if (err.code === "P2025") {
-            return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
-        }
-        throw err;
+    const { id } = req.params;
+
+    // busca apenas se AINDA NÃO estiver deletado
+    const existing = await prisma.category.findUnique({
+        where: { id: req.params.id as string, deletadoEm: null }
+    });
+
+    if (!existing) {
+        return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404 });
     }
+
+    // marca como deletado
+    await prisma.category.update({
+        where: { id: req.params.id as string  },
+        data: { deletadoEm: new Date() },
+    });
+    res.json({ message: "Categoria deletada com sucesso" });
 };
