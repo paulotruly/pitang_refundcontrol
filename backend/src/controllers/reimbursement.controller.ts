@@ -34,7 +34,25 @@ export const createReimbursement = async (req: Request, res: Response) => {
 
 export const getReimbursement = async (req: Request, res: Response) => {
     const { sub: userId, perfil } = req.user;
-    let where: object;
+
+    // parâmetros da query que já estão sendo validados pelo middleware (validate-params.middleware.ts)
+    const { pagina, limite, status, categoria, busca, ordenarPor, ordem } = req.query as {
+        // o "?" indica que todos são opcionais
+        pagina?: number;
+        limite?: number;
+        status?: string;
+        categoria?: string;
+        busca?: string;
+        ordenarPor?: "dataDespesa" | "valor" | "criadoEm";
+        ordem?: "asc" | "desc";
+    };
+
+    const paginaAtual = pagina ?? 1; // se a página for nula, usa o valor 1
+    const limitePorPagina = limite ?? 10;
+    const skip = (paginaAtual - 1) * limitePorPagina; // calcula quantos registros o banco pula antes de começar a retornar resultados
+    // ou seja, se por exemplo, estivermos na pagina 3 com 10 itens por página --> skip = (3-1) * 10 = 20, o banco pula os 20 primeiros registros
+
+    let where: any = {}; // um objeto que guarda todos os filtros que serão aplicados na busca, tipo um WHERE do SQL
 
     switch (perfil) {
         case "COLABORADOR":
@@ -51,11 +69,44 @@ export const getReimbursement = async (req: Request, res: Response) => {
             where = {};
             break;
     }
+
+    if (status) {
+        where.status = status; // se houver filtro status, adiciona 
+    }
+    if (categoria) {
+        where.categoriaId = categoria;
+    }
+    if (busca) { // aqui ele faz uma busca parcial, tipo o LIKE do SQL
+        where.solicitante = { // então se busca por "Joao", ele traz todos os dados que tem "Joao", tipo "João", "Maria Joaquina", etc
+            nome: { contains: busca }, // tipo um CTRL F, o prisma faz automaticamente
+        };
+    }
+
+    const orderBy = { // cria um objeto de ordenação com o nome da chave snedo dinamico
+        // se não houver valor, ele ordena pela data de criação
+        [ordenarPor ?? "criadoEm"]: ordem ?? "desc", // e se não enviar a ordem, ele ordena DESC
+    };
+
+    // aqui ele conta quantos registros existem no total pra calcular as páginas
+    const totalItens = await prisma.reimbursement.count({ where });
+
     const reimbursements = await prisma.reimbursement.findMany({
-        where,
-        include: { categoria: true, solicitante: { select: { nome: true, email: true } } },
+        where, // aplica o filtro
+        skip, // pula registros
+        take: limitePorPagina, // pega no máximo X registros por página
+        orderBy, // define a ordem
+        include: { categoria: true, solicitante: { select: { nome: true, email: true } } }, // traz dados relacionados
     });
-    res.json(reimbursements);
+
+    res.json({
+        dados: reimbursements, // traz os dados
+        paginacao: { // e as propriedades para paginação
+            paginaAtual: paginaAtual,
+            limite: limitePorPagina,
+            totalItens,
+            totalPaginas: Math.ceil(totalItens / limitePorPagina), // arredonda pra não ter numero quebrado de paginas
+        },
+    });
 };
 
 export const getReimbursementById = async (req: Request, res: Response) => {

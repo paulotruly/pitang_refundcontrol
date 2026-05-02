@@ -7,11 +7,13 @@ import { createAttachmentSchema } from "../validations/attachment.validation.js"
 import { createAttachment, listAttachments } from "../controllers/attachment.controller.js";
 import { validateParams } from "../middlewares/validate-params.middleware.js";
 import { idParamsSchema } from "../validations/params.validation.js";
+import { reembolsoQuerySchema } from "../validations/query.validation.js";
+import { validateQuery } from "../middlewares/validate-query.middleware.js";
 
 const reimbursementRoutes = Router();
 
 reimbursementRoutes.post('/', validate(createReimbursementSchema), createReimbursement);
-reimbursementRoutes.get('/', getReimbursement);
+reimbursementRoutes.get('/', validateQuery(reembolsoQuerySchema), getReimbursement);
 reimbursementRoutes.get('/:id/history', validateParams(idParamsSchema), getReimbursementHistory);
 reimbursementRoutes.get('/:id', validateParams(idParamsSchema), getReimbursementById);
 reimbursementRoutes.put('/:id', validateParams(idParamsSchema), validate(updateReimbursementSchema), updateReimbursement);
