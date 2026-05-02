@@ -21,6 +21,7 @@ beforeEach(async () => {
   await prisma.attachment.deleteMany();
   await prisma.reimbursement.deleteMany();
   await prisma.category.deleteMany();
+  await prisma.refreshToken.deleteMany();
   await prisma.user.deleteMany();
 });
 

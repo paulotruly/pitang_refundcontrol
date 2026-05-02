@@ -23,7 +23,7 @@ export const validateQuery = <T extends ZodType>(schema: T) => {
         }
 
         // caso tudo dê certo, ele só continua
-        req.query = result.data as any;
+        (req as any).validatedQuery = result.data;
         next();
     };
 };

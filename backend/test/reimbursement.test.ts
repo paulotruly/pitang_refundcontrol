@@ -279,8 +279,8 @@ describe("GET /reimbursement", () => {
       .get("/reimbursement")
       .set("Authorization", `Bearer ${colabToken}`);
     expect(res.status).toBe(200);
-    expect(res.body.length).toBe(1); // apenas o dele
-    expect(res.body[0].solicitanteId).toBe(colabId); // apenas o próprio id
+    expect(res.body.dados.length).toBe(1); // apenas o dele
+    expect(res.body.dados[0].solicitanteId).toBe(colabId); // apenas o próprio id
   });
 });
 

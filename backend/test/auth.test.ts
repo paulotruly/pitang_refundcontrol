@@ -29,8 +29,10 @@ describe("POST /auth/login", () => {
     
       // 3 - validações com o expect()
     expect(res.status).toBe(200); // espera um 200 OK
-    expect(res.body).toHaveProperty("token"); // verifica se retornou token
-    expect(typeof res.body.token).toBe("string"); // token é string
+    expect(res.body).toHaveProperty("accessToken"); // verifica se retornou token
+    expect(res.body).toHaveProperty("refreshToken");
+    expect(typeof res.body.accessToken).toBe("string"); // token é string
+    expect(typeof res.body.refreshToken).toBe("string"); 
   });
 
   it("credenciais inválidas retornam 401", async () => {

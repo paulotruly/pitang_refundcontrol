@@ -36,16 +36,7 @@ export const getReimbursement = async (req: Request, res: Response) => {
     const { sub: userId, perfil } = req.user;
 
     // parâmetros da query que já estão sendo validados pelo middleware (validate-params.middleware.ts)
-    const { pagina, limite, status, categoria, busca, ordenarPor, ordem } = req.query as {
-        // o "?" indica que todos são opcionais
-        pagina?: number;
-        limite?: number;
-        status?: string;
-        categoria?: string;
-        busca?: string;
-        ordenarPor?: "dataDespesa" | "valor" | "criadoEm";
-        ordem?: "asc" | "desc";
-    };
+    const { pagina, limite, status, categoria, busca, ordenarPor, ordem } = (req as any).validatedQuery || {}; 
 
     const paginaAtual = pagina ?? 1; // se a página for nula, usa o valor 1
     const limitePorPagina = limite ?? 10;
