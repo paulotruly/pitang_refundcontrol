@@ -36,8 +36,6 @@ export const updateCategory = async (req: Request, res: Response) => {
         });
         res.json(updatedCategory);
     } catch (err: any) {
-        // P2025 = Prisma: "registro não encontrado" → retorna 404 específico
-        // qualquer outro erro → relança pro error-handler global (500)
         if (err.code === "P2025") {
             return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
         }
