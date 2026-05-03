@@ -1,8 +1,7 @@
 import { getToken, setToken, getUserId, setUserId, removeToken, removeUserId, setRefreshToken, getRefreshToken, removeRefreshToken} from "@/lib/cookies";
 import type { AuthResponse, UserResponse } from "@/types";
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from "react";
-
-const API_URL = "http://localhost:3000";
+import api from "@/lib/api";
 
 // estados da autenticação
 type AuthState = {
@@ -91,11 +90,7 @@ export function AuthProvider({children}: AuthProviderProps) {
 
     const logout = async () => {
         try { // envia o refresh token na api pra revogar ele
-            await fetch(`${API_URL}/auth/logout`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ refreshToken: getRefreshToken() })
-            });
+                await api.post("/auth/logout", {refreshToken: getRefreshToken()});
         } catch {
             // ignora erro
         }
@@ -108,20 +103,12 @@ export function AuthProvider({children}: AuthProviderProps) {
     // serve pra restaurar a sessão se o usuário recarregou a página
     // então verifica se há token e userId salvos, se sim, vamos na API validar se ainda estão bons
     useEffect(() => {
-        const token = getToken();
         const storedUserId = getUserId();
 
-        if (token && storedUserId) {
-            fetch(`${API_URL}/users/${storedUserId}`, {
-                headers: { "Authorization": `Bearer ${token}` }
-            })
-
-            .then(res => {
-                if (!res.ok) throw new Error("Token inválido");
-                return res.json(); // se ok, converte pra JSON
-            })
-            .then((user: UserResponse) => {
-                dispatch({ type: "LOGIN", payload: user });
+        if (storedUserId) {
+            api.get(`/users/${storedUserId}`)
+                .then((res) => {
+                    dispatch({ type: "LOGIN", payload: res.data });
             })
 
             .catch(() => {
