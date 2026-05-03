@@ -1,9 +1,7 @@
+import { Outlet } from "@tanstack/react-router"
+
 function App() {
-  return (
-    <>
-      <p className='text-red-500'> Testando Tailwind CSS </p>
-    </>
-  )
+  return <Outlet/>
 }
 
 export default App
