@@ -29,22 +29,23 @@ export async function createTestUser(perfil: Perfil = Perfil.COLABORADOR) {
     return { user, token };
 }
 
-// cria uma categoria ativa
-export async function createTestCategory() {
+// cria uma categoria (ativa por padrão) com valorMaximo opcional e nome único
+export async function createTestCategory(valorMaximo?: number) {
+  const uniqueId = Date.now() + Math.random().toString(36).substring(2, 9);
   return prisma.category.create({
-    data: { nome: "Categoria teste" }
+    data: { nome: `Categoria teste ${uniqueId}`, valorMaximo }
   });
 }
 
-// cria um reembolso em status RASCUNHO
+// cria um reembolso em status RASCUNHO com data passada
 export async function createTestReimbursement(solicitanteId: string, categoriaId: string) {
   return prisma.reimbursement.create({
     data: {
       solicitanteId,
       categoriaId,
       descricao: "Reembolso teste",
-      valor: 100.50,
-      dataDespesa: new Date("2026-05-01"),
+      valor: 50.00,
+      dataDespesa: new Date("2025-01-01"), // data passada para passar na validação
       status: "RASCUNHO"
     }
   });

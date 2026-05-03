@@ -24,7 +24,7 @@ describe("POST /reimbursement", () => {
         categoriaId,
         descricao: "Compra de materiais",
         valor: 150.75,
-        dataDespesa: "2026-05-01"
+        dataDespesa: "2025-05-01"
       });
     expect(res.status).toBe(201);
     expect(res.body.status).toBe("RASCUNHO");
@@ -39,7 +39,7 @@ describe("POST /reimbursement", () => {
         categoriaId,
         descricao: "Valor inválido",
         valor: 0,
-        dataDespesa: "2026-05-01"
+        dataDespesa: "2025-05-01"
       });
     expect(res.status).toBe(400);
   });
@@ -53,7 +53,7 @@ describe("POST /reimbursement", () => {
         categoriaId: "id-inexistente",
         descricao: "Categoria inválida",
         valor: 100,
-        dataDespesa: "2026-05-01"
+        dataDespesa: "2025-05-01"
       });
     expect(res.status).toBe(400);
   });

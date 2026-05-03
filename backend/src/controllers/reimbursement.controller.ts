@@ -68,14 +68,13 @@ export const getReimbursement = async (req: Request, res: Response) => {
             where.solicitanteId = userId;
             break;
         case "GESTOR":
-            where = { status: "ENVIADO" };
+            where.status = "ENVIADO";
             break;
         case "FINANCEIRO":
-            where = { status: "APROVADO" };
+            where.status = "APROVADO";
             break;
         case "ADMIN":
         default:
-            where = {};
             break;
     }
 
@@ -366,7 +365,7 @@ export const getReimbursementHistory = async (req: Request, res: Response) => {
     }
 
     const history = await prisma.history.findMany({
-        where: { solicitacaoId: id, deletadoEm: null },
+        where: { solicitacaoId: id },
         include: { usuario: {select: {nome: true, email: true}} },
         orderBy: { criadoEm: "asc" },
     });
