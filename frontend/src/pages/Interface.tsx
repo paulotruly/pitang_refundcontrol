@@ -1,3 +1,4 @@
+import DataTable from "@/components/data-table";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -12,7 +13,7 @@ function Interface() {
 
   return (
     <>
-      <p className='text-pink-500'> INTERFACE </p>
+      <DataTable></DataTable>
       <button onClick={handleLogout} className="bg-red-500 rounded p-5"> Logout </button>
     </>
   )

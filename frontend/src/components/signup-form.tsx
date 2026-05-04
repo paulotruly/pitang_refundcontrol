@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import {
-  Card,
+Card,
   CardContent,
   CardDescription,
   CardHeader,
@@ -13,7 +13,6 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import api from "@/lib/api"
 import { getToken } from "@/lib/cookies"
 import type { RegisterRequest, User } from "@/types"
 import { useNavigate } from "@tanstack/react-router"

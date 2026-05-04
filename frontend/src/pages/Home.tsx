@@ -1,7 +1,9 @@
+import DataTable from "@/components/data-table"
+
 function Home() {
   return (
     <>
-      <p className='text-cyan-500'> HOME </p>
+      <h1> Home </h1>
     </>
   )
 }
