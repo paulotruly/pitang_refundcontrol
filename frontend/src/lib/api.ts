@@ -21,6 +21,7 @@ api.interceptors.response.use(
   (response) => response, // se deu certo, só passa pra frente
   async (error) => { // se deu erro...
     const originalRequest = error.config; // guarda a requisição que foi feita
+
     if (error.response?.status === 401 && !originalRequest._retried) { // se foi erro de token expirado/inválido e nao tentou reenviar
       originalRequest._retried = true; // marca que tentou
       const refreshToken = getRefreshToken(); // busca o refresh token

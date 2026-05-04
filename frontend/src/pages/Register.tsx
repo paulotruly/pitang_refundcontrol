@@ -1,7 +1,9 @@
+import { SignupForm } from "@/components/signup-form"
+
 function Register() {
   return (
     <>
-      <p className='text-blue-500'> REGISTRO </p>
+      <SignupForm></SignupForm>
     </>
   )
 }

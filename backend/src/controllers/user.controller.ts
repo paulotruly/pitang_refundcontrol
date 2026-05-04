@@ -1,13 +1,20 @@
 import type { Request, Response } from "express";
 import { hash } from "bcrypt";
-import { Prisma, prisma } from "../prisma.js"
+import { Perfil, Prisma, prisma } from "../prisma.js"
 
 export const createUser = async (req: Request, res: Response) => {
     try {
     const { nome, email, senha, perfil } = req.body;
     const hashedPassword = await hash(senha, 10);
+    let userPerfil: Perfil = "COLABORADOR";
+
+    if (req.user && req.user.perfil === "ADMIN" && perfil) {
+            userPerfil = perfil; // ADMIN pode definir o perfil do novo usuário
+    }
+
     const user = await prisma.user.create({
-      data: { nome, email, senha: hashedPassword, perfil },
+      data: { nome, email, senha: hashedPassword, perfil: userPerfil },
+      omit: { senha: true }
     });
     res.status(201).json(user);
   } catch (error) {

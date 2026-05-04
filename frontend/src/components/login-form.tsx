@@ -22,14 +22,14 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const token = getToken();
   const {login} = useAuth();
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   
   useEffect(() => {
     if (token) {
@@ -38,25 +38,25 @@ export function LoginForm({
   }, [token, navigate])
 
   async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      const response = await api.post<AuthResponse>("/auth/login", {
-        email,
-        senha: password,
-      });
+      event.preventDefault();
+      setIsLoading(true);
+      
+      try {
+        const response = await api.post<AuthResponse>("/auth/login", {
+          email,
+          senha: password,
+        });
 
-      const data = response.data;
-      login(data);
-      setToken(data.accessToken);
-      navigate({ to: "/interface" });
-    } catch (error: any) {
-      const message = error.response?.data?.message // aqui ele recebe a mensagem do erro que foi definido no backend
-      setError(message)
-      setIsLoading(false);
-    }
-}
+        const data = response.data;
+        login(data);
+        setToken(data.accessToken);
+        navigate({ to: "/interface" });
+      } catch (error: any) {
+        const message = error.response?.data?.message // aqui ele recebe a mensagem do erro que foi definido no backend
+        setError(message)
+        setIsLoading(false);
+      }
+  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
