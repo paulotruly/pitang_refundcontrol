@@ -15,6 +15,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { useEffect, useState } from "react"
 import type { AuthResponse } from "@/types"
 import { Loader2 } from "lucide-react"
+import api from "@/lib/api"
 
 export function LoginForm({
   className,
@@ -28,6 +29,7 @@ export function LoginForm({
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   
   useEffect(() => {
     if (token) {
@@ -36,29 +38,25 @@ export function LoginForm({
   }, [token, navigate])
 
   async function handleSubmit(event: React.FormEvent) {
-  event.preventDefault()
-  setIsLoading(true)
+    event.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      const response = await api.post<AuthResponse>("/auth/login", {
+        email,
+        senha: password,
+      });
 
-  const response = await fetch("http://localhost:3000/auth/login", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-      email: email,
-      senha: password
-    }),
-  })
-
-  const data: AuthResponse = await response.json()
-
-  if (response.ok) {
-      login(data)
-      setToken(data.accessToken)
-      navigate({ to: '/interface' })
-    } else {
-      console.error("Falhou")
-      setIsLoading(false)
+      const data = response.data;
+      login(data);
+      setToken(data.accessToken);
+      navigate({ to: "/interface" });
+    } catch (error: any) {
+      const message = error.response?.data?.message // aqui ele recebe a mensagem do erro que foi definido no backend
+      setError(message)
+      setIsLoading(false);
     }
-  }
+}
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -107,6 +105,10 @@ export function LoginForm({
                   onChange={(e)=>setPassword(e.target.value)}
                   id="password" type="password" required placeholder="••••••••"
                   />
+
+                  {error && (
+                    <p className="text-sm text-red-500 text-center">{error}</p>
+                  )}
                 </div>
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
