@@ -1,5 +1,3 @@
-import DataTable from "@/components/data-table"
-
 function Home() {
   return (
     <>
