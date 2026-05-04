@@ -1,4 +1,4 @@
-import { getToken, setToken, getUserId, setUserId, removeToken, removeUserId, setRefreshToken, getRefreshToken, removeRefreshToken} from "@/lib/cookies";
+import { setToken, getUserId, setUserId, removeToken, removeUserId, setRefreshToken, getRefreshToken, removeRefreshToken} from "@/lib/cookies";
 import type { AuthResponse, UserResponse } from "@/types";
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from "react";
 import api from "@/lib/api";

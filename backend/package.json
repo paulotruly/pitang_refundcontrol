@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch server.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.ts",
     "test": "cross-env DATABASE_URL=file:./prisma/test.db NODE_OPTIONS=--experimental-vm-modules jest",

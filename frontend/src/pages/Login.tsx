@@ -1,7 +1,10 @@
+import { LoginForm } from "@/components/login-form"
+
+
 function Login() {
   return (
     <>
-      <p className='text-green-500'> LOGIN </p>
+      <LoginForm> </LoginForm>
     </>
   )
 }
