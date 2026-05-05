@@ -23,6 +23,13 @@ export interface RegisterRequest {
   senha: string;
 }
 
+export interface CreateReimbursementInput {
+  categoriaId: string;
+  descricao: string;
+  valor: number;
+  dataDespesa: string;
+}
+
 export interface Reimbursement {
   id: string;
   categoria: Category;

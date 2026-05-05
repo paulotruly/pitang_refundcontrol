@@ -16,7 +16,7 @@ app.use("/uploads", express.static(path.resolve("uploads")));
 app.use(cors());
 app.use(express.json());
 app.use("/users", userRoutes)
-app.use("/category", authMiddleware, categoryRoutes)
+app.use("/categories", authMiddleware, categoryRoutes)
 app.use("/reimbursement", authMiddleware, reimbursementRoutes)
 app.use('/auth', authRoutes);
 

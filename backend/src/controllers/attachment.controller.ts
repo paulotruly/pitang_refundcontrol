@@ -25,13 +25,3 @@ export const createAttachment = async (req: Request, res: Response) => {
     });
     res.status(201).json(attachment);
 };
-
-export const listAttachments = async (req: Request, res: Response) => {
-    const id = req.params.id as string;
-
-    const reimbursement = await prisma.reimbursement.findUnique({ where: { id, deletadoEm: null } });
-    if (!reimbursement) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
-    
-    const attachments = await prisma.attachment.findMany({ where: { solicitacaoId: id } });
-    res.json(attachments);
-};

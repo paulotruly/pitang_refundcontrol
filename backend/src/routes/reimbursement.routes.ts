@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { createReimbursement, getReimbursement, getReimbursementById, updateReimbursement, submitReimbursement, approveReimbursement, rejectReimbursement, payReimbursement, cancelReimbursement, getReimbursementHistory } from "../controllers/reimbursement.controller.js";
+import { createReimbursement, getReimbursement, getReimbursementById, updateReimbursement, submitReimbursement, approveReimbursement, rejectReimbursement, payReimbursement, cancelReimbursement, getReimbursementHistory, listAttachments, getAttachmentById } from "../controllers/reimbursement.controller.js";
 import { validate } from "../middlewares/validate.middleware.js";
 import { createReimbursementSchema, updateReimbursementSchema, rejectSchema } from "../validations/reimbursement.validation.js";
 import { roleMiddleware } from "../middlewares/role.middleware.js";
-import { createAttachment, listAttachments } from "../controllers/attachment.controller.js";
+import { createAttachment } from "../controllers/attachment.controller.js";
 import { validateParams } from "../middlewares/validate-params.middleware.js";
-import { idParamsSchema } from "../validations/params.validation.js";
+import { attachmentParamsSchema, idParamsSchema } from "../validations/params.validation.js";
 import { reembolsoQuerySchema } from "../validations/query.validation.js";
 import { validateQuery } from "../middlewares/validate-query.middleware.js";
 import { upload } from "../middlewares/upload.middleware.js";
@@ -27,5 +27,6 @@ reimbursementRoutes.post('/:id/cancel', validateParams(idParamsSchema), cancelRe
                                                                             // espera um arquivo chamado
 reimbursementRoutes.post('/:id/attachments', validateParams(idParamsSchema), upload.single("comprovante"), createAttachment);
 reimbursementRoutes.get('/:id/attachments', validateParams(idParamsSchema), listAttachments);
+reimbursementRoutes.get('/:id/attachments/:attachmentId', validateParams(attachmentParamsSchema), getAttachmentById);
 
 export default reimbursementRoutes;

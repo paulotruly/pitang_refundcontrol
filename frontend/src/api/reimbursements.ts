@@ -1,5 +1,15 @@
 import api from "@/lib/api";
-import type { Reimbursement, Category, ReimbursementStatus, ReimbursementResponse, ReimbursementHistoryItem } from "@/types";
+import type { Reimbursement, Category, ReimbursementStatus, ReimbursementResponse, ReimbursementHistoryItem, CreateReimbursementInput } from "@/types";
+
+export async function getCategories(): Promise<Category[]> {
+  const response = await api.get('/categories');
+  return response.data;
+}
+
+export async function createReimbursement(input: CreateReimbursementInput): Promise<Reimbursement> {
+  const response = await api.post('/reimbursement', input);
+  return response.data;
+}
 
 export async function getReimbursements(pagina: number = 1, limite: number = 15): Promise<Reimbursement[]> {
     const data = await getReimbursementsWithTotal(pagina, limite)
@@ -48,4 +58,23 @@ export async function sendReimbursement(id: string): Promise<Reimbursement> {
 export async function getReimbursementHistory(id: string): Promise<ReimbursementHistoryItem[]> {
   const response = await api.get(`/reimbursement/${id}/history`)
   return response.data
+}
+
+export async function uploadAttachment(id: string, file: File): Promise<any> {
+  const formData = new FormData();
+  formData.append('comprovante', file, file.name);
+  // NÃO definir Content-Type manualmente - o axios faz isso automaticamente com o boundary correto
+  const response = await api.post(`/reimbursement/${id}/attachments`, formData);
+  return response.data;
+}
+
+export async function getAttachmentById(reimbursementId: string, attachmentId: string): Promise<any> {
+  // GET para buscar um anexo específico pelo ID
+  const response = await api.get(`/reimbursement/${reimbursementId}/attachments/${attachmentId}`);
+  return response.data;
+}
+
+export async function getAttachments(id: string): Promise<any[]> {
+  const response = await api.get(`/reimbursement/${id}/attachments`);
+  return response.data;
 }

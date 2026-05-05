@@ -362,4 +362,71 @@ export const getReimbursementHistory = async (req: Request, res: Response) => {
     });
 
     res.json(history);
-}
+};
+
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+
+export const listAttachments = async (req: Request, res: Response) => {
+    const reimbursementId = req.params.id as string;
+
+    // verifica se o reembolso existe
+    const reimbursement = await prisma.reimbursement.findUnique({ 
+        where: { id: reimbursementId, deletadoEm: null } 
+    });
+    if (!reimbursement) {
+        return res.status(404).json({ 
+            message: "Solicitação não encontrada", 
+            statusCode: 404, 
+            error: "Not Found" 
+        });
+    }
+
+    // busca todos os anexos vinculados a este reembolso
+    const attachments = await prisma.attachment.findMany({
+        where: { solicitacaoId: reimbursementId },
+        orderBy: { criadoEm: 'desc' }
+    });
+
+    res.json(attachments);
+};
+
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+
+export const getAttachmentById = async (req: Request, res: Response) => {
+    const reimbursementId = req.params.id as string;
+    const attachmentId = req.params.attachmentId as string;
+
+    // verifica se o reembolso existe
+    const reimbursement = await prisma.reimbursement.findUnique({ 
+        where: { id: reimbursementId, deletadoEm: null } 
+    });
+    if (!reimbursement) {
+        return res.status(404).json({ 
+            message: "Solicitação não encontrada", 
+            statusCode: 404, 
+            error: "Not Found" 
+        });
+    }
+
+    // busca o anexo específico que pertence a este reembolso
+    const attachment = await prisma.attachment.findUnique({
+        where: { 
+            id: attachmentId,
+            solicitacaoId: reimbursementId 
+        }
+    });
+
+    if (!attachment) {
+        return res.status(404).json({ 
+            message: "Anexo não encontrado", 
+            statusCode: 404, 
+            error: "Not Found" 
+        });
+    }
+
+    res.json(attachment);
+};

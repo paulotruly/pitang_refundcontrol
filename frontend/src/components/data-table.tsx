@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { FileText, PencilIcon, Settings2, TrashIcon, Send, Check, X, Ban, DollarSign } from "lucide-react"
-import { approveReimbursement, cancelReimbursement, getReimbursementsWithTotal, payReimbursement, rejectReimbursement } from '@/api/reimbursements'
+import { approveReimbursement, cancelReimbursement, getReimbursementsWithTotal, payReimbursement, rejectReimbursement, sendReimbursement } from '@/api/reimbursements'
 import dayjs from 'dayjs'
 import { StatusBadge } from './status-badge'
 import JustificationForm from './justification-form'
@@ -21,6 +21,7 @@ import { Plus } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { Button } from './ui/button'
 import ReimbursementDetails from './reimbursement-details'
+import CreateReimbursement from './create-reimbursement'
 
 function DataTable() {
   const {user} = useAuth()
@@ -32,6 +33,14 @@ function DataTable() {
 
   const [isReimbursementDetailsOpen, setIsReimbursementDetailsOpen] = useState(false)
   const [selectedReimbursementDetailsId, setSelectedReimbursementDetailsId] = useState<string | null>(null)
+
+  const [isCreateReimbursementOpen, setIsCreateReimbursementOpen] = useState(false)
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const handleCreated = () => {
+    fetchReimbursements(); // recarrega a lista
+    setIsCreateModalOpen(false);
+  };
 
   const REIMBURSEMENT_PER_PAGE = 15
 
@@ -65,17 +74,21 @@ function DataTable() {
   return (
     <div className="space-y-6">
       {/* header */}
+
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">...</div>
+
         {user?.perfil === "COLABORADOR" && (
           <button
-            onClick={() => navigate({ to: '/interface/solicitacoes/novo' })}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+            onClick={async (e) => {
+              setIsCreateReimbursementOpen(true);
+            }}
           >
             <Plus size={16} />
-            Nova Solicitação
+            Nova solicitação
           </button>
         )}
+
       </div>
 
       <div className="flex items-center justify-between">
@@ -174,6 +187,27 @@ function DataTable() {
 
                       <DropdownMenuContent className="bg-slate-800 border-slate-700 text-slate-200 w-48" align="end">
                         
+                        {/* submeter - apenas COLABORADOR com status RASCUNHO */}
+                        {(user?.perfil === 'COLABORADOR') && reimbursement.status === 'RASCUNHO' && (
+                          <DropdownMenuItem
+                          className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            console.log('ID clicado:', reimbursement.id);
+                            try {
+                              await sendReimbursement(reimbursement.id);
+                              fetchReimbursements();
+                            } catch (err) {
+                              setError("Erro ao submeter solicitação de reembolso.") 
+                              console.error(err)
+                            }
+                          }}
+                          >
+                            <Send size={15} className="mr-2 text-white" />
+                            Submeter
+                          </DropdownMenuItem>
+                        )}
+
                         {/* aprovar - apenas GESTOR ou ADMIN com status ENVIADO */}
                         {(user?.perfil === 'GESTOR' || user?.perfil === 'ADMIN') && reimbursement.status === 'ENVIADO' && (
                           <DropdownMenuItem
@@ -288,6 +322,15 @@ function DataTable() {
         }}
         reimbursementId={selectedReimbursementDetailsId || ''}
       />
+
+      <CreateReimbursement
+        isOpen={isCreateReimbursementOpen}
+        onSuccess={handleCreated}
+        onClose={() => {
+          setIsCreateReimbursementOpen(false);
+        }}
+      />
+
     </div>
   )
 }

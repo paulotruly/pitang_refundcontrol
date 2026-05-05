@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, FileText, User, Calendar, DollarSign, History } from 'lucide-react';
-import { getReimbursementById, getReimbursementHistory } from '@/api/reimbursements';
+import { getAttachments, getReimbursementById, getReimbursementHistory } from '@/api/reimbursements';
 import type { Reimbursement, ReimbursementHistoryItem } from '@/types';
 import { StatusBadge } from './status-badge';
 import dayjs from 'dayjs';
@@ -12,6 +12,7 @@ interface ReimbursementDetailsProps {
 }
 
 function ReimbursementDetails({ isOpen, onClose, reimbursementId }: ReimbursementDetailsProps) {
+  const [attachments, setAttachments] = useState<any[]>([]);
   const [reimbursement, setReimbursement] = useState<Reimbursement | null>(null);
   const [history, setHistory] = useState<ReimbursementHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,12 +25,14 @@ function ReimbursementDetails({ isOpen, onClose, reimbursementId }: Reimbursemen
       setLoading(true);
       setError('');
       try {
-        const [reimbData, historyData] = await Promise.all([
+        const [reimbData, historyData, attachmentsData] = await Promise.all([
           getReimbursementById(reimbursementId),
-          getReimbursementHistory(reimbursementId)
+          getReimbursementHistory(reimbursementId),
+          getAttachments(reimbursementId) 
         ]);
         setReimbursement(reimbData);
         setHistory(historyData);
+        setAttachments(attachmentsData);
       } catch (err) {
         setError('Erro ao carregar detalhes do reembolso.');
         console.error(err)
@@ -119,6 +122,39 @@ function ReimbursementDetails({ isOpen, onClose, reimbursementId }: Reimbursemen
             <div className="bg-slate-800/50 p-4 rounded-lg">
               <p className="text-sm text-slate-400 mb-2">Descrição</p>
               <p className="text-slate-200 whitespace-pre-wrap">{reimbursement.descricao}</p>
+            </div>
+
+            {/* anexos vinculados */}
+            <div>
+              <h3 className="text-lg font-medium text-slate-200 mb-3 flex items-center gap-2">
+                <FileText size={18} />
+                Anexos ({attachments.length})
+              </h3>
+              {attachments.length > 0 ? (
+                <div className="space-y-2">
+                  {attachments.map((att) => (
+                    <div key={att.id} className="bg-slate-800/30 p-3 rounded-lg border border-slate-700/50 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <FileText size={18} className="text-slate-400" />
+                        <div>
+                          <p className="text-slate-200 text-sm font-medium">{att.nomeArquivo}</p>
+                          <p className="text-xs text-slate-500">{att.tipoArquivo}</p>
+                        </div>
+                      </div>
+                      <a 
+                        href={`http://localhost:3000/uploads/${att.urlArquivo}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 text-sm"
+                      >
+                        Visualizar
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-slate-500 text-sm">Nenhum anexo vinculado.</p>
+              )}
             </div>
 
             {reimbursement.status === 'REJEITADO' && 'justificativaRejeicao' in reimbursement && (
