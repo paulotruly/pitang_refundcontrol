@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearch } from '@tanstack/react-router'
+import { useMatch, useSearch } from '@tanstack/react-router'
 import type { Reimbursement } from "../types"
 import {
   Table,
@@ -23,8 +23,26 @@ import { Button } from './ui/button'
 import ReimbursementDetails from './reimbursement-details'
 import CreateReimbursement from './create-reimbursement'
 import EditReimbursement from './edit-reimbursement'
+import { createReimbursementRoute, editReimbursementRoute } from '@/router'
 
 function DataTable() {
+  // removi o open dos modals e agora ele usa o useMatch pra verificar se a rota atual corresponde ao create ou edit
+  // se a rota for /create ou /edit/:id, o useMatch retorna um objeto (truthy) e o modal abre
+  // se não for, ele retorna undefined e o modal fica fechado.
+  // o shouldThrow: false é pra evitar erro quando a rota não bate, deixando o retorno seguro
+  // no caso do edit, eu também pego o id direto da URL (editMatch.params.id),
+  // então não preciso mais guardar isso em state
+  // basicamente agora o estado do modal vem da rota, não mais de variáveis locais
+  const createMatch = useMatch({
+  from: createReimbursementRoute.id,
+  shouldThrow: false,
+  })
+
+  const editMatch = useMatch({
+    from: editReimbursementRoute.id,
+    shouldThrow: false,
+  })
+
   const {user} = useAuth()
   const navigate = useNavigate()
 
@@ -35,14 +53,8 @@ function DataTable() {
   const [isReimbursementDetailsOpen, setIsReimbursementDetailsOpen] = useState(false)
   const [selectedReimbursementDetailsId, setSelectedReimbursementDetailsId] = useState<string | null>(null)
 
-  const [isCreateReimbursementOpen, setIsCreateReimbursementOpen] = useState(false)
-
-  const [isEditReimbursementOpen, setIsEditReimbursementOpen] = useState(false)
-
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const handleCreated = () => {
     fetchReimbursements(); // recarrega a lista
-    setIsCreateModalOpen(false);
   };
 
   const REIMBURSEMENT_PER_PAGE = 15
@@ -84,7 +96,7 @@ function DataTable() {
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
             onClick={async (e) => {
-              setIsCreateReimbursementOpen(true);
+              navigate({ to: '/interface/solicitacoes/create' })
             }}
           >
             <Plus size={16} />
@@ -292,8 +304,15 @@ function DataTable() {
                           className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer"
                           onClick={async (e) => {
                             e.stopPropagation();
+                            navigate({
+                              to: '/interface/solicitacoes/edit/$id',
+                              params: { id: reimbursement.id }
+                            })
                             try {
-                              setIsEditReimbursementOpen(true);
+                              navigate({
+                                to: '/interface/solicitacoes/edit/$id',
+                                params: { id: reimbursement.id }
+                              })
                               setSelectedReimbursementDetailsId(reimbursement.id);
                             } catch (err) {
                               setError("Erro ao tentar editar reembolso.") 
@@ -348,19 +367,15 @@ function DataTable() {
       />
 
       <CreateReimbursement
-        isOpen={isCreateReimbursementOpen}
+        isOpen={!!createMatch}
         onSuccess={handleCreated}
-        onClose={() => {
-          setIsCreateReimbursementOpen(false);
-        }}
+        onClose={() => navigate({ to: '/interface/solicitacoes' })}
       />
 
       <EditReimbursement
-        isOpen={isEditReimbursementOpen}
+        isOpen={!!editMatch}
         onSuccess={handleCreated}
-        onClose={() => {
-          setIsEditReimbursementOpen(false);
-        }}
+        onClose={() => navigate({ to: '/interface/solicitacoes' })}
         reimbursementId={selectedReimbursementDetailsId || ''}
       />
 

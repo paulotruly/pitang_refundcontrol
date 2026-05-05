@@ -88,6 +88,7 @@ const aprovacoesRoute = createRoute({
     beforeLoad: () => requireRole('GESTOR', 'ADMIN'),
 })
 
+// criei a rota base de solicitações, que já exige autenticação e permite vários perfis acessarem
 const solicitacoesRoute = createRoute({
     getParentRoute: () => interfaceRoute,
     path: 'solicitacoes',
@@ -95,15 +96,30 @@ const solicitacoesRoute = createRoute({
     beforeLoad: () => requireRole('COLABORADOR', 'GESTOR', 'FINANCEIRO', 'ADMIN'),
 })
 
+// criei rotas filhas de solicitacoes para representar ações específicas (create e edit),
+// em vez de usar estado pra abrir modal, cada ação agora tem uma URL própria
+export const createReimbursementRoute = createRoute({
+  getParentRoute: () => solicitacoesRoute,
+  path: 'create',
+})
+
+export const editReimbursementRoute = createRoute({
+  getParentRoute: () => solicitacoesRoute,
+  path: 'edit/$id',
+})
+
 const routeTree = rootRoute.addChildren([
     indexRoute,
     loginRoute,
     registerRoute,
     interfaceRoute.addChildren([
-        solicitacoesRoute,
+        solicitacoesRoute.addChildren([
+            createReimbursementRoute,
+            editReimbursementRoute
+        ]),
         aprovacoesRoute,
         financeiroRoute,
-        adminRoute
+        adminRoute,
     ])
 ])
 
