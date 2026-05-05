@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { createReimbursement, getCategories } from '@/api/reimbursements';
+import { createReimbursement, getCategories, uploadAttachment } from '@/api/reimbursements';
 import type { Category, CreateReimbursementInput } from '@/types';
 import { useNavigate } from '@tanstack/react-router';
 import router from '@/router';
@@ -84,6 +84,11 @@ function CreateReimbursement({ isOpen, onClose, onSuccess }: CreateReimbursement
       };
 
       const novoReembolso = await createReimbursement(input);
+
+      if (attachment) {
+        await uploadAttachment(novoReembolso.id, attachment);
+      }
+
       setCategoriaId('');
       setDescricao('');
       setValor('');

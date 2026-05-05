@@ -7,7 +7,14 @@ const storage = multer.diskStorage({
     destination: "uploads/", // destino da pasta
     filename: (_req, file, cb) => { // função que é aplicada toda vez que precisar salvar um arquivo: _req -> o objeto da requisição que vem de fora, file -> o arquivo, cb -> o nome do arquivo
         // renomeia com UUID para evitar conflitos entre arquivos com o mesmo nome
-        const ext = path.extname(file.originalname); // extrai a extensão do arquivo ex: ".png" e renomeia mantendo a mesma extensão
+        const ext = path.extname(file.originalname).toLowerCase(); // extrai a extensão do arquivo ex: ".png" e renomeia mantendo a mesma extensão
+
+        // valida extensão também (segurança extra)
+        const allowedExt = [".pdf", ".jpg", ".jpeg", ".png"];
+        if (!allowedExt.includes(ext)) {
+            return cb(new Error("Extensão inválida. Use PDF, JPG ou PNG"), "");
+        }
+
         cb(null, `${randomUUID()}${ext}`); // define o nome final
     },
 });

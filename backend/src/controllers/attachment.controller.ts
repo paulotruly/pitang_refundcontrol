@@ -14,12 +14,14 @@ export const createAttachment = async (req: Request, res: Response) => {
     if (!req.file) {
         return res.status(400).json({ message: "Nenhum arquivo enviado", statusCode: 400, error: "Bad Request" });
     }
+
+    console.log("FILE:", req.file);
     
     const attachment = await prisma.attachment.create({
         data: {
             solicitacaoId: id,
             nomeArquivo: req.file.originalname,
-            urlArquivo: `/uploads/${req.file.filename}`,
+            urlArquivo: req.file.filename, // vai direto pra pasta uploads
             tipoArquivo: req.file.mimetype,
         },
     });
