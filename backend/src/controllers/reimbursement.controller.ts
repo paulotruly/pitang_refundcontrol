@@ -138,9 +138,6 @@ export const getReimbursementById = async (req: Request, res: Response) => {
         return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
     }
 
-    if (perfil !== "ADMIN" && reimbursement.solicitanteId !== userId) {
-        return res.status(403).json({ message: "Sem permissão", statusCode: 403, error: "Forbidden" });
-    }
     res.json(reimbursement);
 };
 
@@ -328,7 +325,7 @@ export const cancelReimbursement = async (req: Request, res: Response) => {
     const existing = await prisma.reimbursement.findUnique({ where: { id, deletadoEm: null } });
     if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
     if (existing.solicitanteId !== userId && perfil !== "ADMIN") return res.status(403).json({ message: "Sem permissão", statusCode: 403, error: "Forbidden" });
-    if (existing.status !== "RASCUNHO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
+    if (existing.status !== "RASCUNHO" && existing.status !== "APROVADO" && existing.status !== "ENVIADO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
 
     const updated = await prisma.reimbursement.update({
         where: { id, deletadoEm: null },

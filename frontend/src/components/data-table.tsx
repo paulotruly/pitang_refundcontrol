@@ -20,6 +20,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { Button } from './ui/button'
+import ReimbursementDetails from './reimbursement-details'
 
 function DataTable() {
   const {user} = useAuth()
@@ -28,6 +29,9 @@ function DataTable() {
   // estados para controlar o modal de justificativa
   const [isJustificationModalOpen, setIsJustificationModalOpen] = useState(false)
   const [selectedReimbursementId, setSelectedReimbursementId] = useState<string | null>(null)
+
+  const [isReimbursementDetailsOpen, setIsReimbursementDetailsOpen] = useState(false)
+  const [selectedReimbursementDetailsId, setSelectedReimbursementDetailsId] = useState<string | null>(null)
 
   const REIMBURSEMENT_PER_PAGE = 15
 
@@ -126,7 +130,14 @@ function DataTable() {
               </TableRow>
             ) : reimbursements.length > 0 ? (
               reimbursements.map((reimbursement) => (
-                <TableRow key={reimbursement.id} className="border-slate-800/30 hover:bg-slate-800/20 transition-colors">
+                <TableRow
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  setSelectedReimbursementDetailsId(reimbursement.id);
+                  setIsReimbursementDetailsOpen(true);
+                }}
+                key={reimbursement.id}
+                className="border-slate-800/30 hover:bg-slate-800/20 transition-colors">
                   <TableCell className="font-mono text-slate-500">{reimbursement.id}</TableCell>
 
                   <TableCell className="font-medium text-slate-200 max-w-[200px] truncate">
@@ -257,7 +268,6 @@ function DataTable() {
         </Table>
       </div>
 
-      {/* Modal de Justificativa de Rejeição */}
       <JustificationForm
         isOpen={isJustificationModalOpen}
         onClose={() => {
@@ -268,6 +278,15 @@ function DataTable() {
         onSuccess={() => {
           fetchReimbursements(); // recarrega a lista após rejeição
         }}
+      />
+
+      <ReimbursementDetails
+        isOpen={isReimbursementDetailsOpen}
+        onClose={() => {
+          setIsReimbursementDetailsOpen(false);
+          setSelectedReimbursementDetailsId(null);
+        }}
+        reimbursementId={selectedReimbursementDetailsId || ''}
       />
     </div>
   )

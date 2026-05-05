@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import type { Reimbursement, Category, ReimbursementStatus, ReimbursementResponse } from "@/types";
+import type { Reimbursement, Category, ReimbursementStatus, ReimbursementResponse, ReimbursementHistoryItem } from "@/types";
 
 export async function getReimbursements(pagina: number = 1, limite: number = 15): Promise<Reimbursement[]> {
     const data = await getReimbursementsWithTotal(pagina, limite)
@@ -42,5 +42,10 @@ export async function cancelReimbursement(id: string): Promise<Reimbursement> {
 
 export async function sendReimbursement(id: string): Promise<Reimbursement> {
   const response = await api.post(`/reimbursement/${id}/submit`)
+  return response.data
+}
+
+export async function getReimbursementHistory(id: string): Promise<ReimbursementHistoryItem[]> {
+  const response = await api.get(`/reimbursement/${id}/history`)
   return response.data
 }

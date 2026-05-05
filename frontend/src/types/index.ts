@@ -1,5 +1,6 @@
 export type Perfil = "COLABORADOR" | "GESTOR" | "FINANCEIRO" | "ADMIN";
 export type ReimbursementStatus = "CANCELADO" | "PAGO" | "REJEITADO" | "APROVADO" | "ENVIADO" | "RASCUNHO";
+export type HistoryActions = "CREATED" | "UPDATED" | "SUBMITTED" | "APPROVED" | "REJECTED" | "PAID" | "CANCELLED";
 
 export interface User {
   id: string;
@@ -50,4 +51,17 @@ export interface Category {
   id: string;
   nome: string;
   ativo: boolean;
+}
+
+export interface ReimbursementHistoryItem {
+  id: string;
+  solicitacaoId: string;
+  usuarioId: string;
+  acao: HistoryActions;
+  observacao?: string;
+  criadoEm: string;
+  usuario?: {
+    nome: string;
+    email: string;
+  };
 }
