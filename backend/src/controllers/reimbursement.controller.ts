@@ -246,8 +246,6 @@ export const approveReimbursement = async (req: Request, res: Response) => {
     const { perfil } = req.user;
     const id = req.params.id as string;
 
-    if (perfil !== "GESTOR") return res.status(403).json({ message: "Perfil inválido", statusCode: 403, error: "Forbidden" });
-
     const existing = await prisma.reimbursement.findUnique({ where: { id, deletadoEm: null } });
     if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
     if (existing.status !== "ENVIADO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
@@ -273,8 +271,6 @@ export const rejectReimbursement = async (req: Request, res: Response) => {
     const { perfil, sub: userId } = req.user;
     const id = req.params.id as string;
     const { justificativaRejeicao } = req.body;
-
-    if (perfil !== "GESTOR") return res.status(403).json({ message: "Perfil inválido", statusCode: 403, error: "Forbidden" });
 
     const existing = await prisma.reimbursement.findUnique({ where: { id, deletadoEm: null } });
     if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
@@ -304,8 +300,6 @@ export const payReimbursement = async (req: Request, res: Response) => {
     const { perfil } = req.user;
     const id = req.params.id as string;
 
-    if (perfil !== "FINANCEIRO") return res.status(401).json({ message: "Perfil inválido", statusCode: 401, error: "Unauthorized" });
-
     const existing = await prisma.reimbursement.findUnique({ where: { id, deletadoEm: null } });
     if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
     if (existing.status !== "APROVADO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
@@ -328,12 +322,12 @@ export const payReimbursement = async (req: Request, res: Response) => {
 // ------------------------------------------------------------------------------
 
 export const cancelReimbursement = async (req: Request, res: Response) => {
-    const { sub: userId } = req.user;
+    const { sub: userId, perfil } = req.user;
     const id = req.params.id as string;
 
     const existing = await prisma.reimbursement.findUnique({ where: { id, deletadoEm: null } });
     if (!existing) return res.status(404).json({ message: "Solicitação não encontrada", statusCode: 404, error: "Not Found" });
-    if (existing.solicitanteId !== userId) return res.status(403).json({ message: "Sem permissão", statusCode: 403, error: "Forbidden" });
+    if (existing.solicitanteId !== userId && perfil !== "ADMIN") return res.status(403).json({ message: "Sem permissão", statusCode: 403, error: "Forbidden" });
     if (existing.status !== "RASCUNHO") return res.status(400).json({ message: "Status inválido", statusCode: 400, error: "Bad Request" });
 
     const updated = await prisma.reimbursement.update({

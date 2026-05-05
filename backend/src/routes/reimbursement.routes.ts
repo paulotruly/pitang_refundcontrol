@@ -18,10 +18,10 @@ reimbursementRoutes.get('/:id/history', validateParams(idParamsSchema), getReimb
 reimbursementRoutes.get('/:id', validateParams(idParamsSchema), getReimbursementById);
 reimbursementRoutes.put('/:id', validateParams(idParamsSchema), validate(updateReimbursementSchema), updateReimbursement);
 
-reimbursementRoutes.post('/:id/submit', validateParams(idParamsSchema), submitReimbursement);
-reimbursementRoutes.post('/:id/approve', validateParams(idParamsSchema), roleMiddleware("GESTOR"), approveReimbursement);
-reimbursementRoutes.post('/:id/reject', validateParams(idParamsSchema), roleMiddleware("GESTOR"), validate(rejectSchema), rejectReimbursement);
-reimbursementRoutes.post('/:id/pay', validateParams(idParamsSchema), roleMiddleware("FINANCEIRO"), payReimbursement);
+reimbursementRoutes.post('/:id/submit', validateParams(idParamsSchema), roleMiddleware("COLABORADOR"), submitReimbursement);
+reimbursementRoutes.post('/:id/approve', validateParams(idParamsSchema), roleMiddleware("GESTOR", "ADMIN"), approveReimbursement);
+reimbursementRoutes.post('/:id/reject', validateParams(idParamsSchema), roleMiddleware("GESTOR", "ADMIN"), validate(rejectSchema), rejectReimbursement);
+reimbursementRoutes.post('/:id/pay', validateParams(idParamsSchema), roleMiddleware("FINANCEIRO", "ADMIN"), payReimbursement);
 reimbursementRoutes.post('/:id/cancel', validateParams(idParamsSchema), cancelReimbursement);
 
                                                                             // espera um arquivo chamado

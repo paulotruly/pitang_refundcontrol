@@ -18,3 +18,29 @@ export async function getReimbursementsWithTotal(pagina: number = 1, limite: num
     return response.data
 }
 
+export async function approveReimbursement(id: string): Promise<Reimbursement> {
+  const response = await api.post(`/reimbursement/${id}/approve`)
+  return response.data
+}
+
+export async function rejectReimbursement(id: string, justificativa?: string): Promise<Reimbursement> {
+  const response = await api.post(`/reimbursement/${id}/reject`, 
+    justificativa ? { justificativaRejeicao: justificativa } : {}
+  )
+  return response.data
+}
+
+export async function payReimbursement(id: string): Promise<Reimbursement> {
+  const response = await api.post(`/reimbursement/${id}/pay`)
+  return response.data
+}
+
+export async function cancelReimbursement(id: string): Promise<Reimbursement> {
+  const response = await api.post(`/reimbursement/${id}/cancel`)
+  return response.data
+}
+
+export async function sendReimbursement(id: string): Promise<Reimbursement> {
+  const response = await api.post(`/reimbursement/${id}/submit`)
+  return response.data
+}

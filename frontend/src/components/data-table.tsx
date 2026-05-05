@@ -10,9 +10,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { FileText, PencilIcon, Settings2, TrashIcon, Send, Check, X, Ban, DollarSign } from "lucide-react"
-import { getReimbursementsWithTotal } from '@/api/reimbursements'
+import { approveReimbursement, cancelReimbursement, getReimbursementsWithTotal, payReimbursement, rejectReimbursement } from '@/api/reimbursements'
 import dayjs from 'dayjs'
 import { StatusBadge } from './status-badge'
+import JustificationForm from './justification-form'
 
 import { useAuth } from '@/context/AuthContext'
 import { useNavigate } from '@tanstack/react-router'
@@ -24,9 +25,13 @@ function DataTable() {
   const {user} = useAuth()
   const navigate = useNavigate()
 
+  // estados para controlar o modal de justificativa
+  const [isJustificationModalOpen, setIsJustificationModalOpen] = useState(false)
+  const [selectedReimbursementId, setSelectedReimbursementId] = useState<string | null>(null)
+
   const REIMBURSEMENT_PER_PAGE = 15
 
-  const search = useSearch({ from: '/interface' }) // pra q serve isso mesmo? 
+  const search = useSearch({ from: '/interface' })
   const page = search.page ?? 1
   const [reimbursements, setReimbursements] = useState<Reimbursement[]>([])
   const [totalReimbursements, setTotalReimbursements] = useState(0)
@@ -41,7 +46,7 @@ function DataTable() {
       setReimbursements(data?.dados || [])
       setTotalReimbursements(data?.paginacao?.totalItens || 0)
     } catch (err) {
-      setError("Erro ao carregar reembolsos. Tente novamente.")
+      setError("Erro ao carregar reembolsos.")
       setReimbursements([])
       console.error(err)
     } finally {
@@ -157,9 +162,21 @@ function DataTable() {
                       </DropdownMenuTrigger>
 
                       <DropdownMenuContent className="bg-slate-800 border-slate-700 text-slate-200 w-48" align="end">
+                        
                         {/* aprovar - apenas GESTOR ou ADMIN com status ENVIADO */}
                         {(user?.perfil === 'GESTOR' || user?.perfil === 'ADMIN') && reimbursement.status === 'ENVIADO' && (
-                          <DropdownMenuItem className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer">
+                          <DropdownMenuItem
+                          className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer"
+                          onClick={async (e) => {
+                            e.stopPropagation(); // evita que os onclick dos elementos pais ativem
+                            try {
+                              await approveReimbursement(reimbursement.id); // id vem do map
+                              fetchReimbursements(); // atualiza a tabela com o novo status
+                            } catch (err) {
+                              setError("Erro ao aprovar reembolso.")
+                            }
+                          }}
+                          >
                             <Check size={15} className="mr-2 text-green-400" />
                             Aprovar
                           </DropdownMenuItem>
@@ -167,7 +184,15 @@ function DataTable() {
 
                         {/* rejeitar - apenas GESTOR ou ADMIN com status ENVIADO */}
                         {(user?.perfil === 'GESTOR' || user?.perfil === 'ADMIN') && reimbursement.status === 'ENVIADO' && (
-                          <DropdownMenuItem className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer">
+                          <DropdownMenuItem
+                          className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // abre o modal de justificativa passando o ID do reembolso
+                            setSelectedReimbursementId(reimbursement.id);
+                            setIsJustificationModalOpen(true);
+                          }}
+                          >
                             <X size={15} className="mr-2 text-red-400" />
                             Rejeitar
                           </DropdownMenuItem>
@@ -175,23 +200,39 @@ function DataTable() {
 
                         {/* pagar - apenas FINANCEIRO ou ADMIN status APROVADO */}
                         {(user?.perfil === 'FINANCEIRO' || user?.perfil === 'ADMIN') && reimbursement.status === 'APROVADO' && (
-                          <DropdownMenuItem className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer">
+                          <DropdownMenuItem
+                          className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              await payReimbursement(reimbursement.id);
+                              fetchReimbursements();
+                            } catch (err) {
+                              setError("Erro ao pagar reembolso.")
+                              console.error(err)
+                            }
+                          }}
+                          >
                             <DollarSign size={15} className="mr-2 text-emerald-400" />
                             Pagar
                           </DropdownMenuItem>
                         )}
 
-                        {/* Enviar - apenas COLABORADOR com status RASCUNHO */}
-                        {user?.perfil === 'COLABORADOR' && reimbursement.status === 'RASCUNHO' && (
-                          <DropdownMenuItem className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer">
-                            <Send size={15} className="mr-2 text-blue-400" />
-                            Enviar
-                          </DropdownMenuItem>
-                        )}
-
-                        {/* Cancelar - todos, menos se status for PAGO */}
-                        {reimbursement.status !== 'PAGO' && (
-                          <DropdownMenuItem className="focus:bg-red-900/30 focus:text-red-400 cursor-pointer text-red-400">
+                        {/* cancelar - todos, menos se status for PAGO */}
+                        {reimbursement.status !== 'PAGO' && reimbursement.status !== 'CANCELADO' && reimbursement.status !== 'REJEITADO' && (
+                          <DropdownMenuItem
+                          className="focus:bg-red-900/30 focus:text-red-400 cursor-pointer text-red-400"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              await cancelReimbursement(reimbursement.id);
+                              fetchReimbursements();
+                            } catch (err) {
+                              setError("Erro ao cancelar reembolso.")
+                              console.error(err)
+                            }
+                          }}
+                          >
                             <Ban size={15} className="mr-2" />
                             Cancelar
                           </DropdownMenuItem>
@@ -215,6 +256,19 @@ function DataTable() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Modal de Justificativa de Rejeição */}
+      <JustificationForm
+        isOpen={isJustificationModalOpen}
+        onClose={() => {
+          setIsJustificationModalOpen(false);
+          setSelectedReimbursementId(null);
+        }}
+        reimbursementId={selectedReimbursementId || ''}
+        onSuccess={() => {
+          fetchReimbursements(); // recarrega a lista após rejeição
+        }}
+      />
     </div>
   )
 }
