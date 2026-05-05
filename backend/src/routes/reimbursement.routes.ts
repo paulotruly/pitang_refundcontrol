@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createReimbursement, getReimbursement, getReimbursementById, updateReimbursement, submitReimbursement, approveReimbursement, rejectReimbursement, payReimbursement, cancelReimbursement, getReimbursementHistory, listAttachments, getAttachmentById } from "../controllers/reimbursement.controller.js";
+import { createReimbursement, getReimbursement, getReimbursementById, updateReimbursement, submitReimbursement, approveReimbursement, rejectReimbursement, payReimbursement, cancelReimbursement, getReimbursementHistory, listAttachments, getAttachmentById, editAttachment, deleteAttachment } from "../controllers/reimbursement.controller.js";
 import { validate } from "../middlewares/validate.middleware.js";
 import { createReimbursementSchema, updateReimbursementSchema, rejectSchema } from "../validations/reimbursement.validation.js";
 import { roleMiddleware } from "../middlewares/role.middleware.js";
@@ -28,5 +28,8 @@ reimbursementRoutes.post('/:id/cancel', validateParams(idParamsSchema), cancelRe
 reimbursementRoutes.post('/:id/attachments', validateParams(idParamsSchema), upload.single("comprovante"), createAttachment);
 reimbursementRoutes.get('/:id/attachments', validateParams(idParamsSchema), listAttachments);
 reimbursementRoutes.get('/:id/attachments/:attachmentId', validateParams(attachmentParamsSchema), getAttachmentById);
+reimbursementRoutes.delete('/:id/attachments/:attachmentId', validateParams(attachmentParamsSchema), deleteAttachment);
+
+reimbursementRoutes.put('/:id/attachments/:attachmentId', validateParams(attachmentParamsSchema), upload.single("comprovante"), editAttachment);
 
 export default reimbursementRoutes;

@@ -22,6 +22,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from './ui/button'
 import ReimbursementDetails from './reimbursement-details'
 import CreateReimbursement from './create-reimbursement'
+import EditReimbursement from './edit-reimbursement'
 
 function DataTable() {
   const {user} = useAuth()
@@ -35,6 +36,8 @@ function DataTable() {
   const [selectedReimbursementDetailsId, setSelectedReimbursementDetailsId] = useState<string | null>(null)
 
   const [isCreateReimbursementOpen, setIsCreateReimbursementOpen] = useState(false)
+
+  const [isEditReimbursementOpen, setIsEditReimbursementOpen] = useState(false)
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const handleCreated = () => {
@@ -193,7 +196,6 @@ function DataTable() {
                           className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer"
                           onClick={async (e) => {
                             e.stopPropagation();
-                            console.log('ID clicado:', reimbursement.id);
                             try {
                               await sendReimbursement(reimbursement.id);
                               fetchReimbursements();
@@ -282,6 +284,28 @@ function DataTable() {
                             Cancelar
                           </DropdownMenuItem>
                         )}
+
+
+                        {/* editar - apenas COLABORADOR com status RASCUNHO */}
+                        {(user?.perfil === 'COLABORADOR') && reimbursement.status === 'RASCUNHO' && (
+                          <DropdownMenuItem
+                          className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              setIsEditReimbursementOpen(true);
+                              setSelectedReimbursementDetailsId(reimbursement.id);
+                            } catch (err) {
+                              setError("Erro ao tentar editar reembolso.") 
+                              console.error(err)
+                            }
+                          }}
+                          >
+                            <PencilIcon size={15} className="mr-2 text-white" />
+                            Editar
+                          </DropdownMenuItem>
+                        )}
+
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -329,6 +353,15 @@ function DataTable() {
         onClose={() => {
           setIsCreateReimbursementOpen(false);
         }}
+      />
+
+      <EditReimbursement
+        isOpen={isEditReimbursementOpen}
+        onSuccess={handleCreated}
+        onClose={() => {
+          setIsEditReimbursementOpen(false);
+        }}
+        reimbursementId={selectedReimbursementDetailsId || ''}
       />
 
     </div>

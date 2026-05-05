@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../prisma.js"
+import path from "path";
+import fs from 'fs';
 
 // ------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------
@@ -429,4 +431,92 @@ export const getAttachmentById = async (req: Request, res: Response) => {
     }
 
     res.json(attachment);
+};
+
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+
+export const editAttachment = async (req: Request, res: Response) => {
+    const reimbursementId = req.params.id as string;
+    const attachmentId = req.params.attachmentId as string;
+    
+    const reimbursement = await prisma.reimbursement.findUnique({
+        where: { id: reimbursementId, deletadoEm: null }
+    });
+    if (!reimbursement) {
+        return res.status(404).json({ 
+            message: "Solicitação não encontrada", 
+            statusCode: 404, 
+            error: "Not Found" 
+        });
+    }
+
+    const existingAttachment = await prisma.attachment.findUnique({
+        where: { id: attachmentId, solicitacaoId: reimbursementId }
+    });
+    if (!existingAttachment) {
+        return res.status(404).json({ 
+            message: "Anexo não encontrado", 
+            statusCode: 404, 
+            error: "Not Found" 
+        });
+    }
+
+    const oldFilePath = path.join("uploads/", existingAttachment.nomeArquivo); // busca o antigo anexo pelo nome dele q ele catou
+    try {
+        await fs.promises.unlink(oldFilePath); // deleta o arquivo
+    } catch (err) {
+    }
+
+    if (!req.file) {
+     return res.status(400).json({
+       message: "Nenhum arquivo enviado para substituição",
+       statusCode: 400,
+       error: "Bad Request"
+     });
+   }
+
+    const updatedAttachment = await prisma.attachment.update({
+        where: { id: attachmentId },
+        data: {
+            nomeArquivo: req.file.filename, // nome salvo pelo multer
+            urlArquivo: req.file.filename, // caminho de acesso (alinha com rota estática se houver)
+            tipoArquivo: req.file.mimetype, // tipo MIME do arquivo (vem do multer, não do body)
+        }
+    });
+    res.json(updatedAttachment);
+};
+
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+
+export const deleteAttachment = async (req: Request, res: Response) => {
+    const reimbursementId = req.params.id as string;
+    const attachmentId = req.params.attachmentId as string;
+
+    const reimbursement = await prisma.reimbursement.findUnique({
+        where: { id: reimbursementId, deletadoEm: null }
+    });
+    if (!reimbursement) {
+        return res.status(404).json({ 
+            message: "Solicitação não encontrada", 
+            statusCode: 404, 
+            error: "Not Found" 
+        });
+    }
+    
+    const existingAttachment = await prisma.attachment.findUnique({
+        where: { id: attachmentId, solicitacaoId: reimbursementId }
+    });
+    if (!existingAttachment) {
+        return res.status(404).json({ 
+            message: "Anexo não encontrado", 
+            statusCode: 404, 
+            error: "Not Found" 
+        });
+    }
+    await prisma.attachment.delete({ where: { id: attachmentId } });
+    res.status(204).send();
 };

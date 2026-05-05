@@ -11,6 +11,11 @@ export async function createReimbursement(input: CreateReimbursementInput): Prom
   return response.data;
 }
 
+export async function editReimbursement(id: string, input: CreateReimbursementInput): Promise<Reimbursement> {
+  const response = await api.put(`/reimbursement/${id}`, input);
+  return response.data;
+}
+
 export async function getReimbursements(pagina: number = 1, limite: number = 15): Promise<Reimbursement[]> {
     const data = await getReimbursementsWithTotal(pagina, limite)
     return data.dados
@@ -65,6 +70,13 @@ export async function uploadAttachment(id: string, file: File): Promise<any> {
   formData.append('comprovante', file, file.name);
   // NÃO definir Content-Type manualmente - o axios faz isso automaticamente com o boundary correto
   const response = await api.post(`/reimbursement/${id}/attachments`, formData);
+  return response.data;
+}
+
+export async function editAttachment(reimbursementId: string, attachmentId: string, file: File): Promise<any> {
+  const formData = new FormData();
+  formData.append('comprovante', file, file.name);
+  const response = await api.put(`/reimbursement/${reimbursementId}/attachments/${attachmentId}`, formData);
   return response.data;
 }
 
