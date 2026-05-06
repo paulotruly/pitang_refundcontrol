@@ -30,6 +30,7 @@ function EditReimbursement({ isOpen, onClose, onSuccess, reimbursementId }: Edit
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   
   const navigate = useNavigate();
 
@@ -159,7 +160,10 @@ function EditReimbursement({ isOpen, onClose, onSuccess, reimbursementId }: Edit
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
-        onClick={onClose}
+        onClick={() => {
+          onClose();
+          setError('');
+        }}
       />
       
       <div className="relative z-10 w-full max-w-md rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -168,7 +172,10 @@ function EditReimbursement({ isOpen, onClose, onSuccess, reimbursementId }: Edit
             Editar reembolso
           </h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              setError('');
+            }}
             className="text-slate-400 hover:text-slate-200 transition-colors"
             type="button"
           >
@@ -284,7 +291,10 @@ function EditReimbursement({ isOpen, onClose, onSuccess, reimbursementId }: Edit
           <div className="flex justify-end gap-3">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                onClose();
+                setError('');
+              }}
               className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition-colors"
               disabled={isSubmitting}
             >

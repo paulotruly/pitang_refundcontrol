@@ -1,6 +1,6 @@
 export type Perfil = "COLABORADOR" | "GESTOR" | "FINANCEIRO" | "ADMIN";
 export type ReimbursementStatus = "CANCELADO" | "PAGO" | "REJEITADO" | "APROVADO" | "ENVIADO" | "RASCUNHO";
-export type HistoryActions = "CREATED" | "UPDATED" | "SUBMITTED" | "APPROVED" | "REJECTED" | "PAID" | "CANCELLED";
+export type HistoryActions = "CREATED" | "UPDATED" | "SUBMITTED" | "APPROVED" | "REJECTED" | "PAID" | "CANCELED";
 
 export interface User {
   id: string;
@@ -78,7 +78,7 @@ export interface Category {
 export interface UpdateCategoryInput {
   nome?: string;
   ativo?: boolean;
-  deletadoEm?: string | null; // <-- O segredo está aqui
+  deletadoEm?: string | null; 
 }
 
 export interface ReimbursementHistoryItem {

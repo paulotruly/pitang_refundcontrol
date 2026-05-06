@@ -2,8 +2,8 @@ import api from "@/lib/api";
 import type { Reimbursement, Category, ReimbursementStatus, ReimbursementResponse, ReimbursementHistoryItem, CreateReimbursementInput, CategoryResponse, CreateCategoryInput, UpdateCategoryInput } from "@/types";
 
 export async function getCategories(): Promise<Category[]> {
-  const response = await api.get('/categories');
-  return response.data;
+  const response = await api.get<CategoryResponse>('/categories');
+  return response.data.dados;
 }
 
 export async function getCategoryById(id: string): Promise<Category> {

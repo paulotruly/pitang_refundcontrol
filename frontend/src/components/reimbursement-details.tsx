@@ -183,7 +183,7 @@ function ReimbursementDetails({ isOpen, onClose, reimbursementId }: Reimbursemen
                             {item.acao === 'APPROVED' && 'Aprovado'}
                             {item.acao === 'REJECTED' && 'Rejeitado'}
                             {item.acao === 'PAID' && 'Pago'}
-                            {item.acao === 'CANCELLED' && 'Cancelado'}
+                            {item.acao === 'CANCELED' && 'Cancelado'}
                           </p>
                           <p className="text-sm text-slate-400">
                             Por: {item.usuario?.nome || 'Usuário'}

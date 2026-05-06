@@ -38,10 +38,16 @@ function CategoriesTable() {
 
   const {user} = useAuth() // user pode ser usado para verificações de permissão futuras
   const navigate = useNavigate()
-
+  const [success, setSuccess] = useState("")
 
   const handleCreated = () => {
-    fetchCategories(); // recarrega a lista
+    fetchCategories(); // recarrega a lista]
+
+    setSuccess("Operação efetuada com sucesso!")
+
+    setTimeout(() => {
+      setSuccess("")
+    }, 5000)
   };
 
   const CATEGORIES_PER_PAGE = 15
@@ -92,6 +98,12 @@ function CategoriesTable() {
           </button>
 
       </div>
+
+      {success ? (
+        <div className="flex flex-col items-center gap-3 text-green-700 bg-green-300 rounded">
+          <p>{success}</p>
+        </div>
+      ) : null}
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

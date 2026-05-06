@@ -54,7 +54,30 @@ function DataTable() {
   const [selectedReimbursementDetailsId, setSelectedReimbursementDetailsId] = useState<string | null>(null)
 
   const handleCreated = () => {
-    fetchReimbursements(); // recarrega a lista
+    fetchReimbursements(); // recarrega a lista]
+
+    setSuccess("Operação efetuada com sucesso!")
+
+    setTimeout(() => {
+      setSuccess("")
+    }, 5000)
+  };
+
+  const openCreatedDetails = () => {
+    fetchReimbursements(); // recarrega a lista]
+
+    setSuccess("Operação efetuada com sucesso!")
+
+    if (reimbursements.length > 0) {
+      const lastCreated = reimbursements[0] // o último criado é o primeiro da lista
+      setSelectedReimbursementDetailsId(lastCreated.id);
+      setIsReimbursementDetailsOpen(true);
+    }
+
+    setTimeout(() => {
+      setSuccess("")
+    }, 5000)
+
   };
 
   const REIMBURSEMENT_PER_PAGE = 15
@@ -65,6 +88,7 @@ function DataTable() {
   const [totalReimbursements, setTotalReimbursements] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
   const totalPages = Math.ceil(totalReimbursements / REIMBURSEMENT_PER_PAGE)
 
   const fetchReimbursements = async () => {
@@ -129,6 +153,13 @@ function DataTable() {
           </div>
         </div>
       </div>
+
+      
+      {success ? (
+        <div className="flex flex-col items-center gap-3 text-green-700 bg-green-300 rounded">
+          <p>{success}</p>
+        </div>
+      ) : null}
 
       {/* table */}
       <div className="rounded-xl border border-slate-800/50 bg-slate-900/30 overflow-hidden">
@@ -381,13 +412,13 @@ function DataTable() {
 
       <CreateReimbursement
         isOpen={!!createMatch}
-        onSuccess={handleCreated}
+        onSuccess={openCreatedDetails}
         onClose={() => navigate({ to: '/interface/solicitacoes' })}
       />
 
       <EditReimbursement
         isOpen={!!editMatch}
-        onSuccess={handleCreated}
+        onSuccess={openCreatedDetails}
         onClose={() => navigate({ to: '/interface/solicitacoes' })}
         reimbursementId={selectedReimbursementDetailsId || ''}
       />
