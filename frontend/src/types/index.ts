@@ -93,3 +93,13 @@ export interface ReimbursementHistoryItem {
     email: string;
   };
 }
+
+export interface GetReimbursementsParams {
+  pagina?: number
+  limite?: number
+  status?: string
+  categoria?: string
+  busca?: string
+  ordenarPor?: string
+  ordem?: 'asc' | 'desc'
+}

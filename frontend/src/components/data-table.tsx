@@ -24,6 +24,7 @@ import ReimbursementDetails from './reimbursement-details'
 import CreateReimbursement from './create-reimbursement'
 import EditReimbursement from './edit-reimbursement'
 import { createReimbursementRoute, editReimbursementRoute } from '@/router'
+import Pagination from './pagination'
 
 function DataTable() {
   // removi o open dos modals e agora ele usa o useMatch pra verificar se a rota atual corresponde ao create ou edit
@@ -54,13 +55,19 @@ function DataTable() {
   const [selectedReimbursementDetailsId, setSelectedReimbursementDetailsId] = useState<string | null>(null)
 
   const handleCreated = () => {
-    fetchReimbursements(); // recarrega a lista]
+    fetchReimbursements(); // recarrega a lista
 
     setSuccess("Operação efetuada com sucesso!")
 
     setTimeout(() => {
       setSuccess("")
     }, 5000)
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const currentUrl = new URL(window.location.href)
+    currentUrl.searchParams.set('page', String(newPage))
+    navigate({ to: currentUrl.pathname + currentUrl.search })
   };
 
   const openCreatedDetails = () => {
@@ -83,7 +90,16 @@ function DataTable() {
   const REIMBURSEMENT_PER_PAGE = 15
 
   const search = useSearch({ from: '/interface' })
-  const page = search.page ?? 1
+
+  const page = Math.max(1, Number(search.page) || 1)
+
+  // pegando os filtros da URL, se tiver
+  const status = search.status || ''
+  const categoria = search.categoria || ''
+  const busca = search.busca || ''
+  const ordenarPor = search.ordenarPor || 'criadoEm'
+  const ordem = search.ordem || 'desc'
+
   const [reimbursements, setReimbursements] = useState<Reimbursement[]>([])
   const [totalReimbursements, setTotalReimbursements] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -94,7 +110,17 @@ function DataTable() {
   const fetchReimbursements = async () => {
     setLoading(true)
     try {
-      const data = await getReimbursementsWithTotal(page, REIMBURSEMENT_PER_PAGE)
+      // a função getReimbursementsWithTotal agora aceita um objeto com
+      // todos os parâmetros de filtro, paginação e ordenação que são extraídos da URL
+      const data = await getReimbursementsWithTotal({
+        pagina: page,
+        limite: REIMBURSEMENT_PER_PAGE,
+        ordenarPor,
+        ordem,
+        ...(status && { status }), // só inclui nos parâmetros se tiver um valor
+        ...(categoria && { categoria }), 
+        ...(busca && { busca }),
+      })
       setReimbursements(data?.dados || [])
       setTotalReimbursements(data?.paginacao?.totalItens || 0)
     } catch (err) {
@@ -108,14 +134,13 @@ function DataTable() {
 
   useEffect(() => {
     fetchReimbursements()
-  }, [page])
+  }, [page, status, categoria, busca, ordenarPor, ordem])
 
   return (
     <div className="space-y-6">
       {/* header */}
 
       <div className="flex items-center justify-between">
-
         {user?.perfil === "ADMIN" && (
           <button
             className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
@@ -139,8 +164,77 @@ function DataTable() {
             Nova solicitação
           </button>
         )}
-        
+      </div>
 
+      <div className="flex gap-3 flex-wrap mb-4">
+        <select
+          value={status}
+          onChange={(e) => { // ao mudar o filtro, atualiza a URL com o novo status e reseta para a página 1
+            const currentUrl = new URL(window.location.href)
+            currentUrl.searchParams.set('status', e.target.value) // atualiza o parâmetro de status na URL
+            currentUrl.searchParams.set('page', '1') // reseta para a página 1 ao mudar o filtro
+            navigate({
+              to: currentUrl.pathname + currentUrl.search // mantém os outros parâmetros e só atualiza o status e a página
+            })
+          }}
+          className="bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm"
+        > 
+          <option value="">Todos status</option>
+          <option value="RASCUNHO">Rascunho</option>
+          <option value="ENVIADO">Enviado</option>
+          <option value="APROVADO">Aprovado</option>
+          <option value="PAGO">Pago</option>
+          <option value="REJEITADO">Rejeitado</option>
+        </select>
+
+        <input
+          type="text"
+          placeholder="Buscar colaborador..."
+          value={busca}
+          onChange={(e) => {
+            const currentUrl = new URL(window.location.href)
+            currentUrl.searchParams.set('busca', e.target.value)
+            currentUrl.searchParams.set('page', '1')
+            navigate({
+              to: currentUrl.pathname + currentUrl.search // mantém os outros parâmetros e só atualiza a busca e a página
+            })
+          }}
+          className="bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm"
+        />
+
+        <select
+          value={ordenarPor}
+          onChange={(e) => {
+            const currentUrl = new URL(window.location.href)
+            currentUrl.searchParams.set('ordenarPor', e.target.value)
+
+            navigate({
+              to: currentUrl.pathname + currentUrl.search // mantém os outros parâmetros e só atualiza o campo de ordenação
+            })
+          }}
+          className="bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm"
+        >
+          <option value="criadoEm">Mais recentes</option>
+          <option value="valor">Valor</option>
+          <option value="dataDespesa">Data despesa</option>
+        </select>
+
+        <select
+          value={ordem}
+          onChange={(e) => {
+            const currentUrl = new URL(window.location.href)
+
+            currentUrl.searchParams.set('ordem', e.target.value)
+
+            navigate({
+              to: currentUrl.pathname + currentUrl.search // mantém os outros parâmetros e só atualiza a ordem
+            })
+          }}
+          className="bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm"
+        >
+          <option value="desc">Desc</option>
+          <option value="asc">Asc</option>
+        </select>
       </div>
 
       <div className="flex items-center justify-between">
@@ -388,6 +482,12 @@ function DataTable() {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination
+        currentPage={Number(page)}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
 
       <JustificationForm
         isOpen={isJustificationModalOpen}

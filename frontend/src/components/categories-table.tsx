@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMatch, useSearch } from '@tanstack/react-router'
-import type { Category } from "../types" // Reimbursement removido pois não estava sendo usado
+import type { Category } from "../types"
 import {
   Table,
   TableBody,
@@ -9,18 +9,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Check, FileText, Pencil, Settings2, X } from "lucide-react" // PencilIcon removido pois não estava sendo usado
+import { Check, FileText, Pencil, Settings2, X } from "lucide-react" 
 import { deleteCategory, getCategoriesWithTotal, updateCategory } from '@/api/reimbursements'
-
 import { useAuth } from '@/context/AuthContext'
 import { useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { Button } from './ui/button'
-// CreateReimbursement e EditReimbursement removidos pois não estavam sendo usados neste componente
 import { createCategoryRoute, editCategoryRoute } from '@/router'
 import CreateCategory from './create-category.'
 import EditCategory from './edit-category'
+import Pagination from './pagination'
 
 function CategoriesTable() {
   const createMatch = useMatch({
@@ -39,6 +38,12 @@ function CategoriesTable() {
   const {user} = useAuth() // user pode ser usado para verificações de permissão futuras
   const navigate = useNavigate()
   const [success, setSuccess] = useState("")
+
+  const handlePageChange = (newPage: number) => {
+    const currentUrl = new URL(window.location.href) // obtém a URL atual
+    currentUrl.searchParams.set('page', String(newPage)) // atualiza o parâmetro de página na URL
+    navigate({ to: currentUrl.pathname + currentUrl.search }) // navega para a nova URL com o parâmetro atualizado
+  };
 
   const handleCreated = () => {
     fetchCategories(); // recarrega a lista]
@@ -260,6 +265,12 @@ function CategoriesTable() {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination
+              currentPage={Number(page)}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+      />
 
       <CreateCategory
         isOpen={!!createMatch}

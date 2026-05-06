@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import type { Reimbursement, Category, ReimbursementStatus, ReimbursementResponse, ReimbursementHistoryItem, CreateReimbursementInput, CategoryResponse, CreateCategoryInput, UpdateCategoryInput } from "@/types";
+import type { GetReimbursementsParams, Reimbursement, Category, ReimbursementStatus, ReimbursementResponse, ReimbursementHistoryItem, CreateReimbursementInput, CategoryResponse, CreateCategoryInput, UpdateCategoryInput } from "@/types";
 
 export async function getCategories(): Promise<Category[]> {
   const response = await api.get<CategoryResponse>('/categories');
@@ -43,22 +43,22 @@ export async function editReimbursement(id: string, input: CreateReimbursementIn
   return response.data;
 }
 
-export async function getReimbursements(pagina: number = 1, limite: number = 15): Promise<Reimbursement[]> {
-    const data = await getReimbursementsWithTotal(pagina, limite)
-    return data.dados
-}
+// export async function getReimbursements(pagina: number = 1, limite: number = 15): Promise<Reimbursement[]> {
+//     const data = await getReimbursementsWithTotal(pagina, limite)
+//     return data.dados
+// }
 
 export async function getReimbursementById(id: string): Promise<Reimbursement> {
     const response = await api.get(`/reimbursement/${id}`)
     return response.data
 }
 
-export async function getReimbursementsWithTotal(pagina: number = 1, limite: number = 15): Promise<ReimbursementResponse> {
-    const response = await api.get("/reimbursement", {
-        params: { pagina, limite }
-    })
-    return response.data
-}
+// export async function getReimbursementsWithTotal(pagina: number = 1, limite: number = 15): Promise<ReimbursementResponse> {
+//     const response = await api.get("/reimbursement", {
+//         params: { pagina, limite }
+//     })
+//     return response.data
+// }
 
 export async function approveReimbursement(id: string): Promise<Reimbursement> {
   const response = await api.post(`/reimbursement/${id}/approve`)
@@ -116,4 +116,20 @@ export async function getAttachmentById(reimbursementId: string, attachmentId: s
 export async function getAttachments(id: string): Promise<any[]> {
   const response = await api.get(`/reimbursement/${id}/attachments`);
   return response.data;
+}
+
+export async function getReimbursements(
+  params: GetReimbursementsParams // adicionado para aceitar os parâmetros de filtro, paginação e ordenação
+): Promise<Reimbursement[]> { // ajustado para retornar apenas a lista de reembolsos, sem a parte de paginação
+  const data = await getReimbursementsWithTotal(params) // chamando a função que retorna os dados completos, incluindo a parte de paginação
+  return data.dados // retornando apenas a lista de reembolsos, ignorando a parte de paginação
+}
+
+export async function getReimbursementsWithTotal( // nova função para retornar os dados completos, incluindo a parte de paginação
+  params: GetReimbursementsParams // adicionado para aceitar os parâmetros de filtro, paginação e ordenação
+): Promise<ReimbursementResponse> { // ajustado para retornar o tipo ReimbursementResponse, que inclui tanto a lista de reembolsos quanto a parte de paginação
+  const response = await api.get("/reimbursement", { // chamando a API para buscar os reembolsos, passando os parâmetros de filtro, paginação e ordenação
+    params,
+  })
+  return response.data
 }
