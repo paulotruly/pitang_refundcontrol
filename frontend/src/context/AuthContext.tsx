@@ -55,7 +55,7 @@ interface AuthContextType {
 }
 
 // criando de fato o contexto - isso aqui seria os dados iniciais do contexto
-const AuthContext = createContext<AuthContextType>({
+export const AuthContext = createContext<AuthContextType>({
     user: null,
     isAuthentic: false,
     isLoading: false,
