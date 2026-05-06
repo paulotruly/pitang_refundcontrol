@@ -9,6 +9,9 @@ import Admin from './pages/Admin';
 import Financeiro from './pages/Financeiro';
 import Aprovacoes from './pages/Aprovacoes';
 import Solicitacoes from './pages/Solicitacoes';
+import CategoriesTable from './components/categories-table';
+import CreateCategory from './components/create-category.';
+import Categorias from './pages/Categorias';
 
 function getUserRole(): Perfil | null {
   const token = getToken();
@@ -96,6 +99,24 @@ const solicitacoesRoute = createRoute({
     beforeLoad: () => requireRole('COLABORADOR', 'GESTOR', 'FINANCEIRO', 'ADMIN'),
 })
 
+const categoriasRoute = createRoute({
+    getParentRoute: () => interfaceRoute,
+    path: 'categorias',
+    component: Categorias,
+    beforeLoad: () => requireRole('ADMIN'),
+})
+
+export const createCategoryRoute = createRoute({
+  getParentRoute: () => categoriasRoute,
+  path: 'create',
+})
+
+const interfaceIndexRoute = createRoute({
+  getParentRoute: () => interfaceRoute,
+  path: '/', 
+  component: Solicitacoes,
+})
+
 // criei rotas filhas de solicitacoes para representar ações específicas (create e edit),
 // em vez de usar estado pra abrir modal, cada ação agora tem uma URL própria
 export const createReimbursementRoute = createRoute({
@@ -113,10 +134,17 @@ const routeTree = rootRoute.addChildren([
     loginRoute,
     registerRoute,
     interfaceRoute.addChildren([
+        interfaceIndexRoute,
+
         solicitacoesRoute.addChildren([
             createReimbursementRoute,
             editReimbursementRoute
         ]),
+
+        categoriasRoute.addChildren([
+            createCategoryRoute
+        ]),
+        
         aprovacoesRoute,
         financeiroRoute,
         adminRoute,

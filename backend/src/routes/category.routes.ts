@@ -12,6 +12,6 @@ categoryRoutes.get('/', getCategory);
 categoryRoutes.get('/:id', validateParams(idParamsSchema), getCategoryById);
 categoryRoutes.post('/', roleMiddleware("ADMIN"), validate(createCategorySchema), createCategory);
 categoryRoutes.put('/:id', validateParams(idParamsSchema), roleMiddleware("ADMIN"), updateCategory);
-categoryRoutes.delete('/:id', validateParams(idParamsSchema), deleteCategory);
+categoryRoutes.delete('/:id', validateParams(idParamsSchema), roleMiddleware("ADMIN"), deleteCategory);
 
 export default categoryRoutes;

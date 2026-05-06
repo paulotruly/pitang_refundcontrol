@@ -9,11 +9,17 @@ export const createCategory = async (req: Request, res: Response) => {
     res.status(201).json(category);
 };
 
-export const getCategory = async (_req: Request, res: Response) => {
+export const getCategory = async (req: Request, res: Response) => {
     const categories = await prisma.category.findMany({
         where: { deletadoEm: null }
     });
-    res.json(categories);
+
+    res.json({
+        dados: categories,
+        paginacao: {
+            totalItens: categories.length
+        }
+    });
 };
 
 export const getCategoryById = async (req: Request, res: Response) => {

@@ -9,8 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { FileText, PencilIcon, Settings2, TrashIcon, Send, Check, X, Ban, DollarSign } from "lucide-react"
-import { approveReimbursement, cancelReimbursement, getReimbursementsWithTotal, payReimbursement, rejectReimbursement, sendReimbursement } from '@/api/reimbursements'
+import { FileText, PencilIcon, Settings2, Send, Check, X, Ban, DollarSign } from "lucide-react"
+import { approveReimbursement, cancelReimbursement, getReimbursementsWithTotal, payReimbursement, sendReimbursement } from '@/api/reimbursements'
 import dayjs from 'dayjs'
 import { StatusBadge } from './status-badge'
 import JustificationForm from './justification-form'
@@ -92,6 +92,18 @@ function DataTable() {
 
       <div className="flex items-center justify-between">
 
+        {user?.perfil === "ADMIN" && (
+          <button
+            className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+            onClick={async (e) => {
+              navigate({ to: '/interface/categorias/' })
+            }}
+          >
+            <Plus size={16} />
+            Visualizar categorias
+          </button>
+        )}
+
         {user?.perfil === "COLABORADOR" && (
           <button
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
@@ -103,6 +115,7 @@ function DataTable() {
             Nova solicitação
           </button>
         )}
+        
 
       </div>
 

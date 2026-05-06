@@ -30,6 +30,11 @@ export interface CreateReimbursementInput {
   dataDespesa: string;
 }
 
+export interface CreateCategoryInput{
+  nome: string;
+  ativo: boolean;
+}
+
 export interface Reimbursement {
   id: string;
   categoria: Category;
@@ -46,6 +51,16 @@ export interface Reimbursement {
 
 export interface ReimbursementResponse {
     dados: Reimbursement[]
+    paginacao: {
+      paginaAtual: number,
+      limite: number,
+      totalItens: number,
+      totalPaginas: number
+    }
+}
+
+export interface CategoryResponse {
+    dados: Category[]
     paginacao: {
       paginaAtual: number,
       limite: number,

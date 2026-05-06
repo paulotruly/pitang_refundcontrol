@@ -1,7 +1,9 @@
+import DataTable from "@/components/data-table"
+
 function Solicitacoes() {
   return (
     <>
-      <p className='text-cyan-500'> ... </p>
+      <DataTable />
     </>
   )
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { createReimbursement, editAttachment, editReimbursement, getAttachments, getCategories, getReimbursementById, uploadAttachment } from '@/api/reimbursements';
+import { editAttachment, editReimbursement, getAttachments, getCategories, getReimbursementById, uploadAttachment } from '@/api/reimbursements';
 import type { Category, CreateReimbursementInput, Reimbursement } from '@/types';
 import { useNavigate } from '@tanstack/react-router';
 import router from '@/router';
