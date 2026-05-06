@@ -1,9 +1,14 @@
 import api from "@/lib/api";
-import type { Reimbursement, Category, ReimbursementStatus, ReimbursementResponse, ReimbursementHistoryItem, CreateReimbursementInput, CategoryResponse, CreateCategoryInput } from "@/types";
+import type { Reimbursement, Category, ReimbursementStatus, ReimbursementResponse, ReimbursementHistoryItem, CreateReimbursementInput, CategoryResponse, CreateCategoryInput, UpdateCategoryInput } from "@/types";
 
 export async function getCategories(): Promise<Category[]> {
   const response = await api.get('/categories');
   return response.data;
+}
+
+export async function getCategoryById(id: string): Promise<Category> {
+    const response = await api.get(`/categories/${id}`)
+    return response.data
 }
 
 export async function getCategoriesWithTotal(pagina: number = 1, limite: number = 15): Promise<CategoryResponse> {
@@ -13,8 +18,8 @@ export async function getCategoriesWithTotal(pagina: number = 1, limite: number 
     return response.data
 }
 
-export async function updateCategory(id: string, data: any) {
-  const response = await api.put(`/categories/${id}`, data);
+export async function updateCategory(id: string, input: UpdateCategoryInput): Promise<Category> {
+  const response = await api.put(`/categories/${id}`, input);
   return response.data;
 }
 

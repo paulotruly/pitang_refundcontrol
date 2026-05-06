@@ -33,7 +33,7 @@ export const getCategory = async (req: Request, res: Response) => {
 
 export const getCategoryById = async (req: Request, res: Response) => {
     const category = await prisma.category.findUnique({
-        where: { id: req.params.id as string, deletadoEm: null },
+        where: { id: req.params.id as string },
     });
     if (!category) {
         return res.status(404).json({ message: "Categoria não encontrada", statusCode: 404, error: "Not Found" });
@@ -42,8 +42,12 @@ export const getCategoryById = async (req: Request, res: Response) => {
 };
 
 export const updateCategory = async (req: Request, res: Response) => {
-    const { nome, ativo } = req.body;
-    const data: { nome?: string; ativo?: boolean; } = { nome, ativo };
+    const { nome, ativo, deletadoEm } = req.body;
+    const data: { nome?: string; ativo?: boolean; deletadoEm?: Date | null } = { nome };
+
+    if (nome !== undefined) data.nome = nome;
+    if (ativo !== undefined) data.ativo = ativo;
+    if (deletadoEm !== undefined) { data.deletadoEm = deletadoEm ? new Date(deletadoEm) : null; }
     try {
         const updatedCategory = await prisma.category.update({
             where: { id: req.params.id as string },

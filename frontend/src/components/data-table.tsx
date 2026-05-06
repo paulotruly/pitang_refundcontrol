@@ -180,7 +180,7 @@ function DataTable() {
                 key={reimbursement.id}
                 className="border-slate-800/30 hover:bg-slate-800/20 transition-colors">
                   <TableCell className="font-mono text-slate-500">{reimbursement.id}</TableCell>
-
+                  
                   <TableCell className="font-medium text-slate-200 max-w-[200px] truncate">
                     {reimbursement.categoria.nome.length > 30 
                       ? reimbursement.categoria.nome.slice(0, 30) + '...' 

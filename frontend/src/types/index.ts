@@ -32,7 +32,6 @@ export interface CreateReimbursementInput {
 
 export interface CreateCategoryInput{
   nome: string;
-  ativo: boolean;
 }
 
 export interface Reimbursement {
@@ -73,6 +72,13 @@ export interface Category {
   id: string;
   nome: string;
   ativo: boolean;
+  deletadoEm?: string | null; // adicionado para suportar o campo de data de deleção
+}
+
+export interface UpdateCategoryInput {
+  nome?: string;
+  ativo?: boolean;
+  deletadoEm?: string | null; // <-- O segredo está aqui
 }
 
 export interface ReimbursementHistoryItem {

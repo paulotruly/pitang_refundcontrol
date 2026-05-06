@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMatch, useSearch } from '@tanstack/react-router'
-import type { Category, Reimbursement } from "../types"
+import type { Category } from "../types" // Reimbursement removido pois não estava sendo usado
 import {
   Table,
   TableBody,
@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Check, FileText, PencilIcon, Settings2, X } from "lucide-react"
+import { Check, FileText, Pencil, Settings2, X } from "lucide-react" // PencilIcon removido pois não estava sendo usado
 import { deleteCategory, getCategoriesWithTotal, updateCategory } from '@/api/reimbursements'
 
 import { useAuth } from '@/context/AuthContext'
@@ -17,10 +17,10 @@ import { useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 import { Button } from './ui/button'
-import CreateReimbursement from './create-reimbursement'
-import EditReimbursement from './edit-reimbursement'
-import { createCategoryRoute } from '@/router'
+// CreateReimbursement e EditReimbursement removidos pois não estavam sendo usados neste componente
+import { createCategoryRoute, editCategoryRoute } from '@/router'
 import CreateCategory from './create-category.'
+import EditCategory from './edit-category'
 
 function CategoriesTable() {
   const createMatch = useMatch({
@@ -28,11 +28,17 @@ function CategoriesTable() {
   shouldThrow: false,
   })
 
-  const {user} = useAuth()
+  const editMatch = useMatch({
+  from: editCategoryRoute.id,
+  shouldThrow: false,
+  })
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+
+  const {user} = useAuth() // user pode ser usado para verificações de permissão futuras
   const navigate = useNavigate()
 
-  const [isReimbursementDetailsOpen, setIsReimbursementDetailsOpen] = useState(false)
-  const [selectedReimbursementDetailsId, setSelectedReimbursementDetailsId] = useState<string | null>(null)
 
   const handleCreated = () => {
     fetchCategories(); // recarrega a lista
@@ -136,20 +142,35 @@ function CategoriesTable() {
             ) : categories.length > 0 ? (
               categories.map((categories) => (
                 <TableRow
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  setSelectedReimbursementDetailsId(categories.id);
-                  setIsReimbursementDetailsOpen(true);
-                }}
                 key={categories.id}
                 className="border-slate-800/30 hover:bg-slate-800/20 transition-colors">
                   <TableCell className="font-mono text-slate-500">{categories.id}</TableCell>
-                
-                  <TableCell className="font-medium text-slate-200 max-w-[200px] truncate">
-                    {categories.nome.length > 30 
-                      ? categories.nome.slice(0, 30) + '...' 
-                      : categories.nome}
-                  </TableCell>
+
+                    {/* editar */}
+                    <TableCell className="flex flex-row gap-1 font-medium text-slate-200 max-w-[200px] truncate">
+                        {categories.nome.length > 30 
+                        ? categories.nome.slice(0, 30) + '...' 
+                        : categories.nome}
+                        <Pencil
+                        onClick={async (e) => {
+                            e.stopPropagation();
+                            navigate({
+                              to: '/interface/categorias/edit/$id',
+                              params: { id: categories.id }
+                            })
+                            try {
+                              navigate({
+                              to: '/interface/categorias/edit/$id',
+                              params: { id: categories.id }
+                            })
+                            setSelectedCategoryId(categories.id);
+                            } catch (err) {
+                              setError("Erro ao tentar editar categoria.") 
+                              console.error(err)
+                            }
+                        }}
+                        size={15} className="mr-2 text-red-400 hover:text-blue-500"/>
+                    </TableCell>
                   
                   <TableCell className="text-slate-500 hidden md:table-cell">
                     {categories.ativo ? 'Ativo' : 'Inativo'}
@@ -165,31 +186,6 @@ function CategoriesTable() {
 
                       <DropdownMenuContent className="bg-slate-800 border-slate-700 text-slate-200 w-48" align="end">
                         
-                        {/* editar */}
-                          {/* <DropdownMenuItem
-                          className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer"
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            navigate({
-                              to: '/interface/solicitacoes/edit/$id',
-                              params: { id: categories.id }
-                            })
-                            try {
-                              navigate({
-                                to: '/interface/solicitacoes/edit/$id',
-                                params: { id: categories.id }
-                              })
-                              setSelectedReimbursementDetailsId(categories.id);
-                            } catch (err) {
-                              setError("Erro ao tentar editar reembolso.") 
-                              console.error(err)
-                            }
-                          }}
-                          >
-                            <PencilIcon size={15} className="mr-2 text-white" />
-                                Editar
-                          </DropdownMenuItem> */}
-
                         {/* desativar */}
                         {(categories.ativo === true) && (
                         <DropdownMenuItem
@@ -259,7 +255,12 @@ function CategoriesTable() {
         onClose={() => navigate({ to: '/interface/categorias' })}
       />
 
-     
+      <EditCategory
+        isOpen={!!editMatch}
+        onSuccess={handleCreated}
+        onClose={() => navigate({ to: '/interface/categorias' })}
+        categoryId={selectedCategoryId || ''}
+      />
 
     </div>
   )

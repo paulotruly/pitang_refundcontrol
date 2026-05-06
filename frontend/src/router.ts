@@ -111,6 +111,12 @@ export const createCategoryRoute = createRoute({
   path: 'create',
 })
 
+// corrigindo a rota de edição de categoria para aceitar o parâmetro id
+export const editCategoryRoute = createRoute({
+  getParentRoute: () => categoriasRoute,
+  path: 'edit/$id',
+})
+
 const interfaceIndexRoute = createRoute({
   getParentRoute: () => interfaceRoute,
   path: '/', 
@@ -140,11 +146,10 @@ const routeTree = rootRoute.addChildren([
             createReimbursementRoute,
             editReimbursementRoute
         ]),
-
         categoriasRoute.addChildren([
-            createCategoryRoute
+            createCategoryRoute,
+            editCategoryRoute
         ]),
-        
         aprovacoesRoute,
         financeiroRoute,
         adminRoute,
