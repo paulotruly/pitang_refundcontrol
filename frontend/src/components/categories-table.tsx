@@ -9,8 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { FileText, PencilIcon, Settings2, X } from "lucide-react"
-import { getCategoriesWithTotal } from '@/api/reimbursements'
+import { Check, FileText, PencilIcon, Settings2, X } from "lucide-react"
+import { deleteCategory, getCategoriesWithTotal, updateCategory } from '@/api/reimbursements'
 
 import { useAuth } from '@/context/AuthContext'
 import { useNavigate } from '@tanstack/react-router'
@@ -191,22 +191,16 @@ function CategoriesTable() {
                           </DropdownMenuItem> */}
 
                         {/* desativar */}
+                        {(categories.ativo === true) && (
                         <DropdownMenuItem
                         className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer"
                         onClick={async (e) => {
                         e.stopPropagation();
-                        navigate({
-                            to: '/interface/solicitacoes/edit/$id',
-                            params: { id: categories.id }
-                        })
                         try {
-                            navigate({
-                            to: '/interface/solicitacoes/edit/$id',
-                            params: { id: categories.id }
-                            })
-                            setSelectedReimbursementDetailsId(categories.id);
+                            await deleteCategory(categories.id);
+                            fetchCategories();
                         } catch (err) {
-                            setError("Erro ao tentar editar reembolso.") 
+                            setError("Erro ao tentar desativar categoria.") 
                             console.error(err)
                         }
                         }}
@@ -214,6 +208,30 @@ function CategoriesTable() {
                         <X size={15} className="mr-2 text-white" />
                             Desativar
                         </DropdownMenuItem>
+                        )}
+                        
+                        {(categories.ativo === false) && (
+                        <DropdownMenuItem
+                        className="focus:bg-slate-700 focus:text-slate-100 cursor-pointer"
+                        onClick={async (e) => {
+                        e.stopPropagation();
+                        try {
+                            await updateCategory(categories.id, {
+                                ativo: true,
+                                deletadoEm: null
+                            });
+                            fetchCategories();
+                        } catch (err) {
+                            setError("Erro ao tentar ativar categoria.") 
+                            console.error(err)
+                        }
+                        }}
+                        >
+                        <Check size={15} className="mr-2 text-white" />
+                            Ativar
+                        </DropdownMenuItem>
+                        )}
+
 
                       </DropdownMenuContent>
                     </DropdownMenu>

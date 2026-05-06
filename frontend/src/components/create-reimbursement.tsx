@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { createReimbursement, getCategories, uploadAttachment } from '@/api/reimbursements';
+import { createReimbursement, getCategories, getCategoriesWithTotal, uploadAttachment } from '@/api/reimbursements';
 import type { Category, CreateReimbursementInput } from '@/types';
 import { useNavigate } from '@tanstack/react-router';
 import router from '@/router';
@@ -32,8 +32,8 @@ function CreateReimbursement({ isOpen, onClose, onSuccess }: CreateReimbursement
     async function fetchCategories() {
       setLoadingCategories(true);
       try {
-        const data = await getCategories();
-        setCategorias(data);
+        const data = await getCategoriesWithTotal();
+        setCategorias(data.dados);
       } catch (err) {
         setError('Erro ao carregar categorias');
       } finally {

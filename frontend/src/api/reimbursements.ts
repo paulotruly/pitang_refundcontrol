@@ -13,8 +13,18 @@ export async function getCategoriesWithTotal(pagina: number = 1, limite: number 
     return response.data
 }
 
+export async function updateCategory(id: string, data: any) {
+  const response = await api.put(`/categories/${id}`, data);
+  return response.data;
+}
+
 export async function createCategory(input: CreateCategoryInput): Promise<Category> {
   const response = await api.post('/categories', input);
+  return response.data;
+}
+
+export async function deleteCategory(id: string): Promise<any> {
+  const response = await api.delete(`/categories/${id}`);
   return response.data;
 }
 
