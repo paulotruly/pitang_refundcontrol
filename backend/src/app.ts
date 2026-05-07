@@ -11,7 +11,8 @@ import path from 'path';
 const app = express();
 
 // serve pra tornar a pasta uploads/ acessível na url "/uploads/arquivo.extensao"
-app.use("/uploads", express.static(path.resolve("uploads")));
+const uploadsAbsolutePath = path.resolve(process.cwd(), "uploads");
+app.use("/uploads", express.static(uploadsAbsolutePath));
 
 app.use(cors());
 app.use(express.json());

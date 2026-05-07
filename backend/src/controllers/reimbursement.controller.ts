@@ -3,6 +3,9 @@ import { prisma } from "../prisma.js"
 import path from "path";
 import fs from 'fs';
 
+// caminho base para uploads (absoluto para evitar problemas)
+const UPLOADS_BASE_PATH = path.resolve(process.cwd(), "uploads");
+
 // ------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------
@@ -463,7 +466,7 @@ export const editAttachment = async (req: Request, res: Response) => {
         });
     }
 
-    const oldFilePath = path.join("uploads/", existingAttachment.nomeArquivo); // busca o antigo anexo pelo nome dele q ele catou
+    const oldFilePath = path.join(UPLOADS_BASE_PATH, existingAttachment.urlArquivo); // busca o antigo anexo pelo nome UUID (urlArquivo)
     try {
         await fs.promises.unlink(oldFilePath); // deleta o arquivo
     } catch (err) {
@@ -519,4 +522,49 @@ export const deleteAttachment = async (req: Request, res: Response) => {
     }
     await prisma.attachment.delete({ where: { id: attachmentId } });
     res.status(204).send();
+};
+
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+
+export const downloadAttachment = async (req: Request, res: Response) => {
+    const attachmentId = req.params.attachmentId as string;
+    const reimbursementId = req.params.id as string;
+    
+    // valida anexo
+    const attachment = await prisma.attachment.findUnique({
+        where: {
+            id: attachmentId,
+        }
+    });
+
+    console.log('>>> Attachment found:', attachment);
+
+    if (!attachment) {
+        const allAttachments = await prisma.attachment.findMany();
+
+        return res.status(404).json({
+            message: "Anexo não encontrado",
+            statusCode: 404,
+            error: "Not Found"
+        });
+    }
+
+    // aqui ele monta o caminho completo do arquivo usando o nome UUID salvo no banco, que é o valor de urlArquivo
+    // e o caminho base de uploads definido no UPLOADS_BASE_PATH que é o caminho absoluto para a pasta de uploads
+    const filePath = path.join(UPLOADS_BASE_PATH, attachment.urlArquivo);
+
+    // verifica se existe no disco
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).json({
+            message: "Arquivo não encontrado no servidor",
+            statusCode: 404,
+            error: "Not Found"
+        });
+    }
+
+    // aqui ele usa o método download do Express para enviar o arquivo como resposta,
+    // o segundo parâmetro é o nome do arquivo que será sugerido no download (pode ser o mesmo UUID ou um nome mais amigável se quiser)
+    return res.download(filePath, attachment.nomeArquivo);
 };

@@ -14,6 +14,7 @@ import {
   getAttachments,
   getReimbursementById,
   getReimbursementHistory,
+  downloadAttachment
 } from '@/api/reimbursements'
 
 import type {
@@ -295,7 +296,6 @@ function ReimbursementDetails({
                 </div>
 
                 {attachments.length > 0 ? (
-
                   <div className="space-y-3">
                     {attachments.map((attachment) => (
                       <div
@@ -327,6 +327,14 @@ function ReimbursementDetails({
                           className="text-sm font-medium text-zinc-300 hover:text-white transition-colors"
                         >
                           Visualizar
+                        </a>
+
+                        <a
+                        className="text-sm font-medium text-zinc-300 hover:text-white transition-colors bg-white/10 p-3 rounded-full" 
+                        onClick={() => {
+                          downloadAttachment(attachment.id, reimbursement.id);
+                        }}>
+                          Baixar
                         </a>
                       </div>
                     ))}

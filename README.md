@@ -136,7 +136,7 @@ As principais escolhas tecnológicas foram feitas visando segurança, manutenibi
 - React Testing Library
 - Intl/DayJS (formatação de datas)
 
-## Lista do que foi Implementado
+## Lista do que foi implementado
 ### Obrigatório
 - **Backend**: Autenticação JWT, CRUD completo de usuários/categorias/solicitações, fluxo completo de transições de status, histórico de auditoria, anexos, validações com Zod, tratamento de erros HTTP, testes com Jest/Supertest.
 - **Frontend**: Telas de login, cadastro, dashboard, criação/edição/detalhe de solicitações, gestão de categorias (admin), fluxos de aprovação/rejeição/pagamento, histórico, navegação protegida por perfil, tratamento de estados de loading/erro/vazio, testes básicos com Jest/RTL.

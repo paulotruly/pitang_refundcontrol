@@ -115,7 +115,7 @@ export async function getAttachmentById(reimbursementId: string, attachmentId: s
 
 export async function getAttachments(id: string): Promise<any[]> {
   const response = await api.get(`/reimbursement/${id}/attachments`);
-  return response.data;
+  return response.data; // retorna a lista de anexos para o reembolso específico
 }
 
 export async function getReimbursements(
@@ -132,4 +132,47 @@ export async function getReimbursementsWithTotal( // nova função para retornar
     params,
   })
   return response.data
+}
+
+export async function downloadAttachment(attachmentId: string, reimbursementId: string): Promise<void> {
+  
+  // passo 1 - fazer a requisição GET para baixar o arquivo, usando
+  // responseType 'blob' para receber os dados como um Blob
+  const response = await api.get(`/reimbursement/${reimbursementId}/attachments/${attachmentId}/download`, {
+    responseType: 'blob',
+  });
+
+  // passo 2 - extrair o nome do arquivo e o tipo de conteúdo dos headers
+  // da resposta, para usar na hora de criar o link de download
+  const getHeader = (name: string): string | undefined => {
+    const val = response.headers[name];
+    if (typeof val === 'string') return val; // se for string, retorna direto
+    if (Array.isArray(val) && typeof val[0] === 'string') return val[0]; // se for array, retorna o primeiro elemento
+    return undefined;
+  };
+
+  // passo 3 - criar um link temporário para o arquivo usando URL.createObjectURL e forçar o download
+  const contentDisposition = getHeader('content-disposition');
+
+  // passo 4 - extrair o nome do arquivo do header content-disposition, se disponível, ou usar um nome padrão
+  const contentType = getHeader('content-type') || 'application/octet-stream';
+
+  let filename = 'arquivo'; // nome padrão caso o header não contenha o nome do arquivo
+
+  // passo 5 - tentar extrair o nome do arquivo do header content-disposition
+  // usando regex, considerando casos com e sem UTF-8
+  if (contentDisposition) { 
+    const match = contentDisposition.match(/filename\*?=['"]?(?:UTF-8'')?([^'";\n]+)['"]?/i);
+    if (match?.[1]) filename = decodeURIComponent(match[1].trim()); // se encontrar o nome do arquivo, decodifica e usa como nome para download
+  }
+
+  // passo 6 - criar um link temporário para o arquivo usando URL.createObjectURL e forçar o download
+  const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
+  const link = document.createElement('a'); // cria um elemento <a> para usar como link de download
+  link.href = url; // define o href do link como a URL temporária criada para o arquivo
+  link.setAttribute('download', filename); // define o atributo download do link com o nome do arquivo para sugerir o nome no download
+  document.body.appendChild(link); // adiciona o link ao corpo do documento para que ele possa ser clicado
+  link.click(); // simula um clique no link para iniciar o download
+  link.remove(); // remove o link do documento após o clique para limpar o DOM
+  window.URL.revokeObjectURL(url); // revoga a URL temporária criada para liberar memória no navegador
 }
