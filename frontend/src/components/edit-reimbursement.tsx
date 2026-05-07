@@ -12,6 +12,7 @@ import {
 import type { Category, CreateReimbursementInput, Reimbursement } from "@/types"
 import { useNavigate } from "@tanstack/react-router"
 import router from "@/router"
+import { FormSkeleton } from "@/components/ui/skeleton"
 
 interface EditReimbursementFormProps {
   isOpen: boolean
@@ -205,8 +206,9 @@ function EditReimbursement({
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           onClick={onClose}
         />
-        <div className="relative z-10 text-zinc-200">
-          Carregando reembolso...
+        {/* Usa o FormSkeleton ao invés de um spinner simples */}
+        <div className="relative z-10 bg-zinc-900 p-6 rounded-xl border border-zinc-800 w-full max-w-2xl">
+          <FormSkeleton />
         </div>
       </div>
     )
@@ -217,7 +219,7 @@ function EditReimbursement({
   // ============================================================================
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-50 flex items-start justify-center px-4">
       {/* overlay */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"

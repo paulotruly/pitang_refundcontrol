@@ -111,31 +111,38 @@ function CreateReimbursement({ isOpen, onClose, onSuccess }: CreateReimbursement
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16">
+      {/* overlay */}
       <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
         onClick={onClose}
       />
       
-      <div className="relative z-10 w-full max-w-md rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-100">
+      {/* modal - agora segue o padrão zinc dos outros modais */}
+      <div className="relative z-10 w-full max-w-md border border-zinc-800 bg-zinc-900/95 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden">
+        
+        {/* header */}
+        <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-5">
+          <h2 className="text-lg font-semibold text-white">
             Nova solicitação de reembolso
           </h2>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
             type="button"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+        {/* form content */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          
+          {/* Categoria */}
+          <div>
             <label 
               htmlFor="categoria" 
-              className="block text-sm font-medium text-slate-300 mb-2"
+              className="block text-sm font-medium text-zinc-300 mb-2"
             >
               Categoria
             </label>
@@ -143,7 +150,7 @@ function CreateReimbursement({ isOpen, onClose, onSuccess }: CreateReimbursement
               id="categoria"
               value={categoriaId}
               onChange={(e) => setCategoriaId(e.target.value)}
-              className="w-full rounded-lg border border-slate-700 bg-slate-800 text-slate-200 p-2.5 text-sm focus:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-600"
+              className="w-full h-11 rounded-xl bg-zinc-950 border border-zinc-800 text-white px-3 text-sm focus:border-zinc-600 focus:bg-zinc-800 focus:outline-none"
               disabled={loadingCategories || isSubmitting}
             >
               <option value="">{loadingCategories ? 'Carregando...' : 'Selecione uma categoria'}</option>
@@ -155,10 +162,11 @@ function CreateReimbursement({ isOpen, onClose, onSuccess }: CreateReimbursement
             </select>
           </div>
 
-          <div className="mb-4">
+          {/* Descrição */}
+          <div>
             <label 
               htmlFor="descricao" 
-              className="block text-sm font-medium text-slate-300 mb-2"
+              className="block text-sm font-medium text-zinc-300 mb-2"
             >
               Descrição
             </label>
@@ -167,15 +175,16 @@ function CreateReimbursement({ isOpen, onClose, onSuccess }: CreateReimbursement
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
               placeholder="Descreva o motivo do reembolso..."
-              className="w-full h-24 rounded-lg border border-slate-700 bg-slate-800 text-slate-200 p-3 text-sm placeholder:text-slate-500 focus:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-600 resize-none"
+              className="w-full h-24 rounded-xl bg-zinc-950 border border-zinc-800 text-white p-3 text-sm placeholder:text-zinc-500 focus:border-zinc-600 focus:bg-zinc-800 focus:outline-none resize-none"
               disabled={isSubmitting}
             />
           </div>
 
-          <div className="mb-4">
+          {/* Valor */}
+          <div>
             <label 
               htmlFor="valor" 
-              className="block text-sm font-medium text-slate-300 mb-2"
+              className="block text-sm font-medium text-zinc-300 mb-2"
             >
               Valor (R$)
             </label>
@@ -187,15 +196,16 @@ function CreateReimbursement({ isOpen, onClose, onSuccess }: CreateReimbursement
               value={valor}
               onChange={(e) => setValor(e.target.value)}
               placeholder="0,00"
-              className="w-full rounded-lg border border-slate-700 bg-slate-800 text-slate-200 p-2.5 text-sm placeholder:text-slate-500 focus:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-600"
+              className="w-full h-11 rounded-xl bg-zinc-950 border border-zinc-800 text-white px-3 text-sm placeholder:text-zinc-500 focus:border-zinc-600 focus:bg-zinc-800 focus:outline-none"
               disabled={isSubmitting}
             />
           </div>
 
-          <div className="mb-6">
+          {/* Data da despesa */}
+          <div>
             <label 
               htmlFor="dataDespesa" 
-              className="block text-sm font-medium text-slate-300 mb-2"
+              className="block text-sm font-medium text-zinc-300 mb-2"
             >
               Data da despesa
             </label>
@@ -204,13 +214,14 @@ function CreateReimbursement({ isOpen, onClose, onSuccess }: CreateReimbursement
               type="date"
               value={dataDespesa}
               onChange={(e) => setDataDespesa(e.target.value)}
-              className="w-full rounded-lg border border-slate-700 bg-slate-800 text-slate-200 p-2.5 text-sm focus:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-600"
+              className="w-full h-11 rounded-xl bg-zinc-950 border border-zinc-800 text-white px-3 text-sm focus:border-zinc-600 focus:bg-zinc-800 focus:outline-none"
               disabled={isSubmitting}
             />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+          {/* Comprovante */}
+          <div>
+            <label className="block text-sm font-medium text-zinc-300 mb-2">
               Comprovante 
               {parseFloat(valor || '0') > 100 && (
                 <span className="text-red-400">*</span>
@@ -220,27 +231,29 @@ function CreateReimbursement({ isOpen, onClose, onSuccess }: CreateReimbursement
               type="file"
               accept=".pdf,.jpg,.jpeg,.png"
               onChange={(e) => setAttachment(e.target.files?.[0] || null)}
-              className="w-full rounded-lg border border-slate-700 bg-slate-800 text-slate-200 p-2.5 text-sm" // precisa modificar esse css pra deixar claro que é anexos
+              className="w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-zinc-800 file:text-zinc-100 file:text-sm hover:file:bg-zinc-700 transition-colors"
               disabled={isSubmitting}
             />
             {parseFloat(valor || '0') > 100 && (
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs text-zinc-500">
                 Obrigatório para valores acima de R$ 100,00
               </p>
             )}
           </div>
 
+          {/* Error message */}
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-900/20 border border-red-800/50">
-              <p className="text-sm text-red-400">{error}</p>
+            <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
+              <p className="text-sm text-red-300">{error}</p>
             </div>
           )}
 
-          <div className="flex justify-end gap-3">
+          {/* Action buttons */}
+          <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-300 hover:bg-zinc-800 transition-colors"
               disabled={isSubmitting}
             >
               Cancelar
@@ -254,6 +267,7 @@ function CreateReimbursement({ isOpen, onClose, onSuccess }: CreateReimbursement
               {isSubmitting ? 'Salvando...' : 'Salvar como rascunho'}
             </button>
           </div>
+
         </form>
       </div>
     </div>

@@ -13,6 +13,7 @@ import type {
 
 import { useNavigate } from '@tanstack/react-router';
 import router from '@/router';
+import { FormSkeleton } from '@/components/ui/skeleton';
 
 interface EditCategoryFormProps {
   isOpen: boolean;
@@ -143,8 +144,9 @@ function EditCategory({
           onClick={onClose}
         />
 
-        <div className="relative z-10 rounded-xl border border-zinc-800 bg-zinc-900 px-6 py-4 text-sm text-zinc-300">
-          Carregando categoria...
+        {/* FormSkeleton substitui o loading simples */}
+        <div className="relative z-10 bg-zinc-900 p-6 rounded-xl border border-zinc-800 w-full max-w-md">
+          <FormSkeleton />
         </div>
       </div>
     );
@@ -155,7 +157,7 @@ function EditCategory({
   // ============================================================================
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4">
 
       {/* overlay */}
       <div

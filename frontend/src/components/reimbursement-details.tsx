@@ -16,6 +16,7 @@ import {
   getReimbursementHistory,
   downloadAttachment
 } from '@/api/reimbursements'
+import { ReimbursementDetailsSkeleton } from '@/components/ui/skeleton'
 
 import type {
   Reimbursement,
@@ -103,7 +104,7 @@ function ReimbursementDetails({
   // ============================================================================
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4">
 
       {/* overlay */}
       <div
@@ -145,15 +146,9 @@ function ReimbursementDetails({
         {/* content */}
         <div className="p-6">
 
-          {/* loading */}
+          {/* loading - agora usa skeleton loader em vez de spinner */}
           {loading ? (
-            <div className="flex flex-col items-center justify-center gap-4 py-20">
-              <div className="w-6 h-6 rounded-full border-2 border-zinc-700 border-t-zinc-400 animate-spin" />
-
-              <p className="text-sm text-zinc-500">
-                Carregando detalhes...
-              </p>
-            </div>
+            <ReimbursementDetailsSkeleton />
 
           ) : error ? (
 
@@ -323,14 +318,14 @@ function ReimbursementDetails({
                         <a
                           target="_blank"
                           rel="noopener noreferrer"
-                          href={`http://localhost:3000${attachment.urlArquivo}`}
+                          href={`http://localhost:3000/uploads/${attachment.urlArquivo}`}
                           className="text-sm font-medium text-zinc-300 hover:text-white transition-colors"
                         >
                           Visualizar
                         </a>
 
                         <a
-                        className="text-sm font-medium text-zinc-300 hover:text-white transition-colors bg-white/10 p-3 rounded-full" 
+                        className="text-sm font-medium text-zinc-300 hover:text-white transition-colors bg-white/10 p-3 rounded-full hover:cursor-pointer" 
                         onClick={() => {
                           downloadAttachment(attachment.id, reimbursement.id);
                         }}>

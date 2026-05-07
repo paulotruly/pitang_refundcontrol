@@ -28,6 +28,7 @@ import {
   User,
   FolderOpen
 } from "lucide-react"
+import { TableRowSkeleton } from "@/components/ui/skeleton"
 import { approveReimbursement, cancelReimbursement, getReimbursementsWithTotal, payReimbursement, sendReimbursement } from '@/api/reimbursements'
 import dayjs from 'dayjs'
 import { StatusBadge } from './status-badge'
@@ -454,14 +455,16 @@ function DataTable() {
                     </TableCell>
                   </TableRow>
                 ) : loading ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="h-6 w-6 border-2 border-zinc-700 border-t-zinc-400 rounded-full animate-spin" />
-                        <p className="text-sm text-zinc-500">Carregando reembolsos...</p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  // Skeleton loader para as linhas da tabela (3 linhas simulando dados)
+                  <>
+                    {[...Array(3)].map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell colSpan={7}>
+                          <TableRowSkeleton />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
                 ) : reimbursements.length > 0 ? (
                   reimbursements.map((reimbursement) => (
                     <TableRow

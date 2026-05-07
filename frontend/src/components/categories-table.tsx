@@ -20,6 +20,7 @@ import { createCategoryRoute, editCategoryRoute } from '@/router'
 import CreateCategory from './create-category.'
 import EditCategory from './edit-category'
 import Pagination from './pagination'
+import { TableRowSkeleton } from "@/components/ui/skeleton"
 
 // ============================================================================
 // HEADER COMPONENT
@@ -317,14 +318,16 @@ function CategoriesTable() {
                     </TableCell>
                   </TableRow>
                 ) : loading ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center py-12">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-6 h-6 border-2 border-zinc-700 border-t-zinc-400 rounded-full animate-spin" />
-                        <p className="text-zinc-500 text-sm">Carregando categorias...</p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  // Skeleton loader para categorias (3 linhas simuladas)
+                  <>
+                    {[...Array(3)].map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell colSpan={4}>
+                          <TableRowSkeleton />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
                 ) : categories.length > 0 ? (
                   categories.map((category) => (
                     <TableRow
