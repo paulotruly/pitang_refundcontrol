@@ -23,13 +23,17 @@ O backend utiliza Node.js, Express, TypeScript e Prisma com SQLite para desenvol
    ```
 3. Configure as variáveis de ambiente copiando o arquivo de exemplo:
    ```bash
-   cp .env.example .env
+   copy .env.example .env
    ```
-4. Execute as migrações do banco de dados:
+4. Gere o Prisma Client:
+   ```bash
+   npx prisma generate
+   ```
+5. Execute as migrações do banco de dados:
    ```bash
    npx prisma migrate dev
    ```
-5. (Recomendado) Popule o banco com dados iniciais para teste executando o script de seed:
+6. (Recomendado) Popule o banco com dados iniciais para teste executando o script de seed:
     ```bash
     npm run seed
     ```
@@ -51,12 +55,7 @@ O frontend utiliza React, Vite, TypeScript, Tailwind CSS e ShadcnUI. Certifique-
    ```bash
    npm install
    ```
-3. Configure as variáveis de ambiente copiando o arquivo de exemplo:
-   ```bash
-   cp .env.example .env
-   ```
-   (Ajuste a variável `VITE_API_URL` para apontar para o backend, ex: `http://localhost:3000`)
-4. Inicie a aplicação em modo de desenvolvimento:
+3. Inicie a aplicação em modo de desenvolvimento:
    ```bash
    npm run dev
    ```
@@ -97,7 +96,7 @@ Os testes de frontend cobrem componentes de formulário (login, cadastro, criaç
 > Os testes utilizam mocks das chamadas de API (axios/api do projeto), do contexto de autenticação e do roteador para isolar os componentes.
 
 ## Variáveis de ambiente
-Crie arquivos `.env` nas pastas de backend e frontend baseados nos exemplos abaixo:
+Crie arquivos `.env` nas pastas de backend baseados nos exemplos abaixo:
 
 ### Backend (.env.example)
 ```env
@@ -111,12 +110,6 @@ JWT_SECRET=sua_chave_secreta_jwt_aqui
 JWT_EXPIRES_IN=15m
 # Tempo de expiração do refresh token (ex: 7d)
 REFRESH_TOKEN_EXPIRES_IN=7d
-```
-
-### Frontend (.env.example)
-```env
-# URL base da API do backend
-VITE_API_URL=http://localhost:3000
 ```
 
 ## Credenciais de teste
@@ -189,5 +182,5 @@ As principais escolhas tecnológicas foram feitas visando segurança, manutenibi
 - Consumo de API externa
 
 ## Lista do que ficou pendente
-- **Backend**: Docker Compose para containerização com PostgreSQL, collection exportável do Postman.
+- **Backend**: Docker Compose para containerização com PostgreSQL, collection exportável do Postman
 - **Frontend**: Responsividade completa
