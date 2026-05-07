@@ -32,11 +32,15 @@ function JustificationForm({ isOpen, onClose, reimbursementId, onSuccess }: Just
       await rejectReimbursement(reimbursementId, justification);
       setJustification('');
       onClose();
+
       if (onSuccess) {
         onSuccess();
       }
+
     } catch (err) {
       setError('Erro ao rejeitar reembolso.');
+      console.error(err)
+
     } finally {
       setIsSubmitting(false);
     }
@@ -45,64 +49,125 @@ function JustificationForm({ isOpen, onClose, reimbursementId, onSuccess }: Just
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+
       <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm" 
         onClick={onClose}
       />
       
-      <div className="relative z-10 w-full max-w-md rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-100">
-            Justificativa de rejeição
-          </h2>
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/95 shadow-2xl">
+
+        {/* header */}
+        <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-5">
+
+          <div>
+            <h2 className="text-lg font-semibold text-white">
+              Justificativa de rejeição
+            </h2>
+
+            <p className="mt-1 text-sm text-zinc-500">
+              Explique o motivo da rejeição deste reembolso.
+            </p>
+          </div>
+
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
             type="button"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+        <form onSubmit={handleSubmit} className="p-6">
+
+          <div className="space-y-2">
             <label 
               htmlFor="justification" 
-              className="block text-sm font-medium text-slate-300 mb-2"
+              className="block text-sm font-medium text-zinc-300"
             >
               Justificativa
             </label>
+
             <textarea
               id="justification"
               value={justification}
               onChange={(e) => setJustification(e.target.value)}
               placeholder="Digite a justificativa para rejeitar este reembolso..."
-              className="w-full h-32 rounded-lg border border-slate-700 bg-slate-800 text-slate-200 p-3 text-sm placeholder:text-slate-500 focus:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-600 resize-none"
+              className="
+                w-full
+                h-32
+                resize-none
+                rounded-xl
+                border
+                border-zinc-700/50
+                bg-zinc-800/50
+                px-4
+                py-3
+                text-sm
+                text-zinc-200
+                placeholder:text-zinc-500
+                outline-none
+                transition-colors
+                focus:border-zinc-600
+                focus:bg-zinc-800
+              "
               disabled={isSubmitting}
             />
+
             {error && (
-              <p className="mt-2 text-sm text-red-400">{error}</p>
+              <p className="text-sm text-red-400">
+                {error}
+              </p>
             )}
           </div>
 
-          <div className="flex justify-end gap-3">
+          <div className="mt-6 flex items-center justify-end gap-3 border-t border-zinc-800 pt-5">
+
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition-colors"
+              className="
+                rounded-lg
+                border
+                border-zinc-700/50
+                bg-zinc-800/50
+                px-4
+                py-2
+                text-sm
+                font-medium
+                text-zinc-300
+                transition-colors
+                hover:bg-zinc-800
+                hover:text-white
+              "
               disabled={isSubmitting}
             >
               Cancelar
             </button>
+
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="
+                rounded-lg
+                bg-red-500
+                px-4
+                py-2
+                text-sm
+                font-medium
+                text-white
+                transition-colors
+                hover:bg-red-400
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+              "
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Rejeitando...' : 'Rejeitar'}
             </button>
           </div>
+
         </form>
       </div>
     </div>

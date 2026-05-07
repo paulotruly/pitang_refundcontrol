@@ -14,7 +14,6 @@ function Interface() {
   return (
     <>
       <Outlet />
-      <button onClick={handleLogout} className="bg-red-500 rounded p-5"> Logout </button>
     </>
   )
 }

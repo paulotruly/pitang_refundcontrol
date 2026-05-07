@@ -1,53 +1,77 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { editAttachment, editReimbursement, getAttachments, getCategories, getCategoryById, getReimbursementById, updateCategory, uploadAttachment } from '@/api/reimbursements';
-import type { Category, CreateCategoryInput, CreateReimbursementInput, Reimbursement } from '@/types';
+
+import {
+  getCategoryById,
+  updateCategory,
+} from '@/api/reimbursements';
+
+import type {
+  Category,
+  CreateCategoryInput,
+} from '@/types';
+
 import { useNavigate } from '@tanstack/react-router';
 import router from '@/router';
 
 interface EditCategoryFormProps {
-  isOpen: boolean; 
-  onClose: () => void; 
+  isOpen: boolean;
+  onClose: () => void;
   categoryId: string;
   onSuccess?: (id: string) => void;
 }
 
-function EditCategory({ isOpen, onClose, onSuccess, categoryId }: EditCategoryFormProps) {
-  const [category, setCategory] = useState<Category | null>(null);
+function EditCategory({
+  isOpen,
+  onClose,
+  onSuccess,
+  categoryId,
+}: EditCategoryFormProps) {
 
+  const [category, setCategory] = useState<Category | null>(null);
   const [nome, setNome] = useState('');
 
   const [loading, setLoading] = useState(true);
+  const [loadingCategories] = useState(false);
 
-  const [categorias, setCategorias] = useState<Category[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(false);
-  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  
+
   const navigate = useNavigate();
+
+  // ============================================================================
+  // LOAD DATA
+  // ============================================================================
 
   useEffect(() => {
     if (!isOpen || !categoryId) return;
 
     async function fetchData() {
-      setLoadingCategories(true);
       setLoading(true);
+      setError('');
+
       try {
         const data = await getCategoryById(categoryId);
-        setCategory(data);
 
-        setNome(data.nome)
+        setCategory(data);
+        setNome(data.nome);
+
       } catch (err) {
         setError('Erro ao carregar categoria.');
         console.error(err);
+
       } finally {
-        setLoadingCategories(false);
         setLoading(false);
       }
     }
+
     fetchData();
+
   }, [isOpen, categoryId]);
+
+  // ============================================================================
+  // VALIDATION
+  // ============================================================================
 
   const validateForm = (): boolean => {
     if (!nome.trim()) {
@@ -57,6 +81,10 @@ function EditCategory({ isOpen, onClose, onSuccess, categoryId }: EditCategoryFo
     return true;
   };
 
+  // ============================================================================
+  // SUBMIT
+  // ============================================================================
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -64,25 +92,38 @@ function EditCategory({ isOpen, onClose, onSuccess, categoryId }: EditCategoryFo
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+
     try {
       const input: CreateCategoryInput = {
-        nome
+        nome,
       };
-      
-      const atualizarCategoria = await updateCategory(categoryId, input);
+
+      const updatedCategory = await updateCategory(categoryId, input);
 
       setNome('');
+
       onClose();
+
       if (onSuccess) {
-        onSuccess(atualizarCategoria.id);
+        onSuccess(updatedCategory.id);
       } else {
-        router.invalidate({ filter: (route) => route.id === '/interface/categorias' });
-        navigate({ to: '/interface'});
+        router.invalidate({
+          filter: (route) =>
+            route.id === '/interface/categorias',
+        });
+
+        navigate({ to: '/interface' });
       }
+
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Erro ao editar categoria.';
+
+      const errorMessage =
+        err.response?.data?.message ||
+        'Erro ao editar categoria.';
+
       setError(errorMessage);
-      console.error(err)
+      console.error(err);
+
     } finally {
       setIsSubmitting(false);
     }
@@ -90,77 +131,157 @@ function EditCategory({ isOpen, onClose, onSuccess, categoryId }: EditCategoryFo
 
   if (!isOpen) return null;
 
+  // ============================================================================
+  // LOADING STATE
+  // ============================================================================
+
   if (loading) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative z-10 text-slate-200 p-6">Carregando categoria...</div>
-    </div>
-  );
-}
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div
+          className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+          onClick={onClose}
+        />
+
+        <div className="relative z-10 rounded-xl border border-zinc-800 bg-zinc-900 px-6 py-4 text-sm text-zinc-300">
+          Carregando categoria...
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+
+      {/* overlay */}
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-      
-      <div className="relative z-10 w-full max-w-md rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-100">
-            Editar categoria
-          </h2>
+
+      {/* modal */}
+      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/95 shadow-2xl">
+
+        {/* header */}
+        <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-5">
+
+          <div>
+            <h2 className="text-lg font-semibold text-white">
+              Editar categoria
+            </h2>
+
+            <p className="mt-1 text-sm text-zinc-500">
+              Atualize as informações da categoria
+            </p>
+          </div>
+
           <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 transition-colors"
             type="button"
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label 
-              htmlFor="nome" 
-              className="block text-sm font-medium text-slate-300 mb-2"
+        {/* form */}
+        <form onSubmit={handleSubmit} className="p-6">
+
+          <div className="space-y-2">
+
+            <label
+              htmlFor="nome"
+              className="text-sm font-medium text-zinc-300"
             >
               Nome
             </label>
+
             <textarea
               id="nome"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               placeholder="Digite o nome da categoria"
-              className="w-full h-24 rounded-lg border border-slate-700 bg-slate-800 text-slate-200 p-3 text-sm placeholder:text-slate-500 focus:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-600 resize-none"
               disabled={isSubmitting}
+              className="
+                w-full
+                h-24
+                resize-none
+                rounded-xl
+                border
+                border-zinc-700/50
+                bg-zinc-800/50
+                px-4
+                py-3
+                text-sm
+                text-zinc-200
+                placeholder:text-zinc-500
+                outline-none
+                transition-colors
+                focus:border-zinc-600
+                focus:bg-zinc-800
+              "
             />
+
           </div>
 
+          {/* error */}
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-900/20 border border-red-800/50">
-              <p className="text-sm text-red-400">{error}</p>
+            <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
+              <p className="text-sm text-red-400">
+                {error}
+              </p>
             </div>
           )}
 
-          <div className="flex justify-end gap-3">
+          {/* footer */}
+          <div className="mt-6 flex items-center justify-end gap-3 border-t border-zinc-800 pt-5">
+
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 transition-colors"
               disabled={isSubmitting}
+              className="
+                rounded-lg
+                border
+                border-zinc-700/50
+                bg-zinc-800/50
+                px-4
+                py-2
+                text-sm
+                font-medium
+                text-zinc-300
+                transition-colors
+                hover:bg-zinc-800
+                hover:text-white
+              "
             >
               Cancelar
             </button>
 
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isSubmitting}
+              className="
+                rounded-lg
+                bg-blue-500
+                px-4
+                py-2
+                text-sm
+                font-medium
+                text-white
+                transition-colors
+                hover:bg-blue-400
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+              "
             >
               {isSubmitting ? 'Editando...' : 'Confirmar'}
             </button>
+
           </div>
         </form>
       </div>

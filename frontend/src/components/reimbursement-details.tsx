@@ -1,220 +1,442 @@
-import { useState, useEffect } from 'react';
-import { X, FileText, User, Calendar, DollarSign, History } from 'lucide-react';
-import { getAttachments, getReimbursementById, getReimbursementHistory } from '@/api/reimbursements';
-import type { Reimbursement, ReimbursementHistoryItem } from '@/types';
-import { StatusBadge } from './status-badge';
-import dayjs from 'dayjs';
+import { useEffect, useState } from 'react'
+import {
+  Calendar,
+  DollarSign,
+  FileText,
+  History,
+  User,
+  X,
+} from 'lucide-react'
+
+import dayjs from 'dayjs'
+
+import {
+  getAttachments,
+  getReimbursementById,
+  getReimbursementHistory,
+} from '@/api/reimbursements'
+
+import type {
+  Reimbursement,
+  ReimbursementHistoryItem,
+} from '@/types'
+
+import { StatusBadge } from './status-badge'
 
 interface ReimbursementDetailsProps {
-  isOpen: boolean; // controla se o modal está aberto
-  onClose: () => void; // função para fechar o modal
-  reimbursementId: string; // ID do reembolso a ser exibido
+  isOpen: boolean
+  onClose: () => void
+  reimbursementId: string
 }
 
-function ReimbursementDetails({ isOpen, onClose, reimbursementId }: ReimbursementDetailsProps) {
-  const [attachments, setAttachments] = useState<any[]>([]);
-  const [reimbursement, setReimbursement] = useState<Reimbursement | null>(null);
-  const [history, setHistory] = useState<ReimbursementHistoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+function ReimbursementDetails({
+  isOpen,
+  onClose,
+  reimbursementId,
+}: ReimbursementDetailsProps) {
+
+  const [attachments, setAttachments] = useState<any[]>([])
+  const [reimbursement, setReimbursement] = useState<Reimbursement | null>(null)
+  const [history, setHistory] = useState<ReimbursementHistoryItem[]>([])
+
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  // ============================================================================
+  // FETCH DATA
+  // ============================================================================
 
   useEffect(() => {
-    if (!isOpen || !reimbursementId) return;
+    if (!isOpen || !reimbursementId) return
 
     async function fetchData() {
-      setLoading(true);
-      setError('');
+      setLoading(true)
+      setError('')
+
       try {
-        const [reimbData, historyData, attachmentsData] = await Promise.all([
+        const [
+          reimbursementData,
+          historyData,
+          attachmentsData
+        ] = await Promise.all([
           getReimbursementById(reimbursementId),
           getReimbursementHistory(reimbursementId),
-          getAttachments(reimbursementId) 
-        ]);
-        setReimbursement(reimbData);
-        setHistory(historyData);
-        setAttachments(attachmentsData);
+          getAttachments(reimbursementId),
+        ])
+
+        setReimbursement(reimbursementData)
+        setHistory(historyData)
+        setAttachments(attachmentsData)
+
       } catch (err) {
-        setError('Erro ao carregar detalhes do reembolso.');
+        setError('Erro ao carregar detalhes do reembolso.')
         console.error(err)
+
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    fetchData();
-  }, [isOpen, reimbursementId]);
+    fetchData()
 
-  if (!isOpen) return null;
+  }, [isOpen, reimbursementId])
+
+  if (!isOpen) return null
+
+  // ============================================================================
+  // ACTION LABELS
+  // ============================================================================
+
+  const actionLabels: Record<string, string> = {
+    CREATED: 'Criado',
+    UPDATED: 'Atualizado',
+    SUBMITTED: 'Enviado',
+    APPROVED: 'Aprovado',
+    REJECTED: 'Rejeitado',
+    PAID: 'Pago',
+    CANCELED: 'Cancelado',
+  }
+
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+
+      {/* overlay */}
+      <div
         onClick={onClose}
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
       />
-      
-      <div className="relative z-10 w-full max-w-2xl rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-slate-100">
-            Detalhes do reembolso
-          </h2>
+
+      {/* modal */}
+      <div className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-900/95 shadow-2xl">
+
+        {/* header */}
+        <div className="sticky top-0 z-20 flex items-center justify-between border-b border-zinc-800 bg-zinc-900/90 backdrop-blur-xl px-6 py-5">
+
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800/50 border border-zinc-700/50">
+              <FileText size={18} className="text-zinc-400" />
+            </div>
+
+            <div>
+              <h2 className="text-lg font-semibold text-white">
+                Detalhes do reembolso
+              </h2>
+
+              <p className="text-sm text-zinc-500">
+                Informações completas da solicitação
+              </p>
+            </div>
+          </div>
+
           <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 transition-colors"
             type="button"
+            onClick={onClose}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-700/50 bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {loading ? (
-          <div className="flex flex-col items-center gap-3 py-12">
-            <div className="w-6 h-6 border-2 border-slate-600 border-t-slate-400 rounded-full animate-spin" />
-            <p className="text-slate-500 text-sm">Carregando detalhes...</p>
-          </div>
-        ) : error ? (
-          <div className="text-center py-12 text-red-500">
-            <p>{error}</p>
-          </div>
-        ) : reimbursement ? (
-          // Detalhes do reembolso
-          <div className="space-y-6">
-            {/* Informações básicas em grid */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* ID */}
-              <div className="bg-slate-800/50 p-4 rounded-lg">
-                <p className="text-sm text-slate-400 mb-1">ID</p>
-                <p className="font-mono text-slate-200 text-sm">{reimbursement.id}</p>
+        {/* content */}
+        <div className="p-6">
+
+          {/* loading */}
+          {loading ? (
+            <div className="flex flex-col items-center justify-center gap-4 py-20">
+              <div className="w-6 h-6 rounded-full border-2 border-zinc-700 border-t-zinc-400 animate-spin" />
+
+              <p className="text-sm text-zinc-500">
+                Carregando detalhes...
+              </p>
+            </div>
+
+          ) : error ? (
+
+            /* error */
+            <div className="flex flex-col items-center gap-4 py-20">
+
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10 border border-red-500/20">
+                <X size={24} className="text-red-400" />
               </div>
 
-              <div className="bg-slate-800/50 p-4 rounded-lg">
-                <p className="text-sm text-slate-400 mb-1">Status</p>
-                <StatusBadge status={reimbursement.status} />
-              </div>
-
-              <div className="bg-slate-800/50 p-4 rounded-lg">
-                <p className="text-sm text-slate-400 mb-1">Categoria</p>
-                <p className="text-slate-200">{reimbursement.categoria.nome}</p>
-              </div>
-
-              <div className="bg-slate-800/50 p-4 rounded-lg">
-                <p className="text-sm text-slate-400 mb-1">Valor</p>
-                <p className="text-slate-200 font-medium">
-                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(reimbursement.valor)}
-                </p>
-              </div>
-
-              <div className="bg-slate-800/50 p-4 rounded-lg">
-                <p className="text-sm text-slate-400 mb-1">Data da despesa</p>
-                <p className="text-slate-200">
-                  {dayjs(reimbursement.dataDespesa).format('DD/MM/YYYY')}
-                </p>
-              </div>
-
-              <div className="bg-slate-800/50 p-4 rounded-lg">
-                <p className="text-sm text-slate-400 mb-1">Solicitante</p>
-                <p className="text-slate-200">
-                  {reimbursement.solicitante?.nome || 'N/A'}
+              <div className="text-center">
+                <p className="text-sm text-red-400">
+                  {error}
                 </p>
               </div>
             </div>
 
-            <div className="bg-slate-800/50 p-4 rounded-lg">
-              <p className="text-sm text-slate-400 mb-2">Descrição</p>
-              <p className="text-slate-200 whitespace-pre-wrap">{reimbursement.descricao}</p>
-            </div>
+          ) : reimbursement ? (
 
-            {/* anexos vinculados */}
-            <div>
-              <h3 className="text-lg font-medium text-slate-200 mb-3 flex items-center gap-2">
-                <FileText size={18} />
-                Anexos ({attachments.length})
-              </h3>
-              {attachments.length > 0 ? (
-                <div className="space-y-2">
-                  {attachments.map((att) => (
-                    <div key={att.id} className="bg-slate-800/30 p-3 rounded-lg border border-slate-700/50 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <FileText size={18} className="text-slate-400" />
-                        <div>
-                          <p className="text-slate-200 text-sm font-medium">{att.nomeArquivo}</p>
-                          <p className="text-xs text-slate-500">{att.tipoArquivo}</p>
-                        </div>
-                      </div>
-                      <a 
-                        href={`http://localhost:3000/uploads/${att.urlArquivo}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 text-sm"
+            <div className="space-y-8">
+
+              {/* info cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                {/* id */}
+                <div className="rounded-xl border border-zinc-800 bg-zinc-800/30 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText size={15} className="text-zinc-500" />
+                    <p className="text-xs uppercase tracking-wider text-zinc-500">
+                      ID
+                    </p>
+                  </div>
+
+                  <p className="font-mono text-sm text-zinc-200 break-all">
+                    {reimbursement.id}
+                  </p>
+                </div>
+
+                {/* status */}
+                <div className="rounded-xl border border-zinc-800 bg-zinc-800/30 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <History size={15} className="text-zinc-500" />
+                    <p className="text-xs uppercase tracking-wider text-zinc-500">
+                      Status
+                    </p>
+                  </div>
+
+                  <StatusBadge status={reimbursement.status} />
+                </div>
+
+                {/* categoria */}
+                <div className="rounded-xl border border-zinc-800 bg-zinc-800/30 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText size={15} className="text-zinc-500" />
+                    <p className="text-xs uppercase tracking-wider text-zinc-500">
+                      Categoria
+                    </p>
+                  </div>
+
+                  <p className="text-sm font-medium text-white">
+                    {reimbursement.categoria.nome}
+                  </p>
+                </div>
+
+                {/* valor */}
+                <div className="rounded-xl border border-zinc-800 bg-zinc-800/30 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <DollarSign size={15} className="text-zinc-500" />
+                    <p className="text-xs uppercase tracking-wider text-zinc-500">
+                      Valor
+                    </p>
+                  </div>
+
+                  <p className="text-sm font-semibold text-white">
+                    {new Intl.NumberFormat('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
+                    }).format(reimbursement.valor)}
+                  </p>
+                </div>
+
+                {/* data */}
+                <div className="rounded-xl border border-zinc-800 bg-zinc-800/30 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Calendar size={15} className="text-zinc-500" />
+                    <p className="text-xs uppercase tracking-wider text-zinc-500">
+                      Data da despesa
+                    </p>
+                  </div>
+
+                  <p className="text-sm text-zinc-200">
+                    {dayjs(reimbursement.dataDespesa).format('DD/MM/YYYY')}
+                  </p>
+                </div>
+
+                {/* solicitante */}
+                <div className="rounded-xl border border-zinc-800 bg-zinc-800/30 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User size={15} className="text-zinc-500" />
+                    <p className="text-xs uppercase tracking-wider text-zinc-500">
+                      Solicitante
+                    </p>
+                  </div>
+
+                  <p className="text-sm text-zinc-200">
+                    {reimbursement.solicitante?.nome || 'N/A'}
+                  </p>
+                </div>
+
+              </div>
+
+              {/* descrição */}
+              <div className="rounded-xl border border-zinc-800 bg-zinc-800/30 p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText size={16} className="text-zinc-500" />
+
+                  <p className="text-sm font-medium text-white">
+                    Descrição
+                  </p>
+                </div>
+
+                <p className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
+                  {reimbursement.descricao}
+                </p>
+              </div>
+
+              {/* anexos */}
+              <div className="space-y-4">
+
+                <div className="flex items-center gap-2">
+                  <FileText size={18} className="text-zinc-400" />
+
+                  <h3 className="text-base font-semibold text-white">
+                    Anexos
+                  </h3>
+
+                  <span className="text-sm text-zinc-500">
+                    ({attachments.length})
+                  </span>
+                </div>
+
+                {attachments.length > 0 ? (
+
+                  <div className="space-y-3">
+                    {attachments.map((attachment) => (
+                      <div
+                        key={attachment.id}
+                        className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-800/20 p-4 hover:bg-zinc-800/40 transition-colors"
                       >
-                        Visualizar
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-slate-500 text-sm">Nenhum anexo vinculado.</p>
-              )}
-            </div>
 
-            {reimbursement.status === 'REJEITADO' && 'justificativaRejeicao' in reimbursement && (
-              <div className="bg-red-900/20 border border-red-800/50 p-4 rounded-lg">
-                <p className="text-sm text-red-400 mb-2">Justificativa de rejeição</p>
-                <p className="text-slate-200">{(reimbursement as any).justificativaRejeicao}</p>
-              </div>
-            )}
+                        <div className="flex items-center gap-3">
 
-            {/* histórico de ações */}
-            <div>
-              <h3 className="text-lg font-medium text-slate-200 mb-3 flex items-center gap-2">
-                <History size={18} />
-                Histórico
-              </h3>
-              {history.length > 0 ? (
-                <div className="space-y-3">
-                  {history.map((item) => (
-                    <div key={item.id} className="bg-slate-800/30 p-3 rounded-lg border border-slate-700/50">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="text-slate-200 font-medium">
-                            {item.acao === 'CREATED' && 'Criado'}
-                            {item.acao === 'UPDATED' && 'Atualizado'}
-                            {item.acao === 'SUBMITTED' && 'Enviado'}
-                            {item.acao === 'APPROVED' && 'Aprovado'}
-                            {item.acao === 'REJECTED' && 'Rejeitado'}
-                            {item.acao === 'PAID' && 'Pago'}
-                            {item.acao === 'CANCELED' && 'Cancelado'}
-                          </p>
-                          <p className="text-sm text-slate-400">
-                            Por: {item.usuario?.nome || 'Usuário'}
-                          </p>
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-800 border border-zinc-700/50">
+                            <FileText size={18} className="text-zinc-400" />
+                          </div>
+
+                          <div>
+                            <p className="text-sm font-medium text-white">
+                              {attachment.nomeArquivo}
+                            </p>
+
+                            <p className="text-xs text-zinc-500">
+                              {attachment.tipoArquivo}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-sm text-slate-500">
-                          {dayjs(item.criadoEm).format('DD/MM/YYYY HH:mm')}
-                        </p>
+
+                        <a
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={`http://localhost:3000${attachment.urlArquivo}`}
+                          className="text-sm font-medium text-zinc-300 hover:text-white transition-colors"
+                        >
+                          Visualizar
+                        </a>
                       </div>
-                      {item.observacao && (
-                        <p className="mt-2 text-sm text-slate-300 bg-slate-800/50 p-2 rounded">
-                          {item.observacao}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+
+                ) : (
+                  <div className="rounded-xl border border-dashed border-zinc-800 bg-zinc-900/30 py-10 text-center">
+                    <p className="text-sm text-zinc-500">
+                      Nenhum anexo vinculado.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* rejeição */}
+              {reimbursement.status === 'REJEITADO' &&
+                'justificativaRejeicao' in reimbursement && (
+
+                <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-5">
+
+                  <p className="mb-2 text-sm font-medium text-red-400">
+                    Justificativa de rejeição
+                  </p>
+
+                  <p className="text-sm text-zinc-200">
+                    {(reimbursement as any).justificativaRejeicao}
+                  </p>
                 </div>
-              ) : (
-                <p className="text-slate-500 text-sm">Nenhum histórico disponível.</p>
               )}
+
+              {/* histórico */}
+              <div className="space-y-4">
+
+                <div className="flex items-center gap-2">
+                  <History size={18} className="text-zinc-400" />
+
+                  <h3 className="text-base font-semibold text-white">
+                    Histórico
+                  </h3>
+                </div>
+
+                {history.length > 0 ? (
+
+                  <div className="space-y-3">
+
+                    {history.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-xl border border-zinc-800 bg-zinc-800/20 p-4"
+                      >
+
+                        <div className="flex items-start justify-between gap-4">
+
+                          <div>
+                            <p className="font-medium text-white">
+                              {actionLabels[item.acao] || item.acao}
+                            </p>
+
+                            <p className="text-sm text-zinc-500">
+                              Por: {item.usuario?.nome || 'Usuário'}
+                            </p>
+                          </div>
+
+                          <span className="text-xs text-zinc-500 whitespace-nowrap">
+                            {dayjs(item.criadoEm).format('DD/MM/YYYY HH:mm')}
+                          </span>
+                        </div>
+
+                        {item.observacao && (
+                          <div className="mt-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-3">
+                            <p className="text-sm text-zinc-300">
+                              {item.observacao}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                  </div>
+
+                ) : (
+                  <div className="rounded-xl border border-dashed border-zinc-800 bg-zinc-900/30 py-10 text-center">
+                    <p className="text-sm text-zinc-500">
+                      Nenhum histórico disponível.
+                    </p>
+                  </div>
+                )}
+              </div>
+
             </div>
-          </div>
-        ) : (
-          // caso não encontre o reembolso
-          <div className="text-center py-12 text-slate-500">
-            <p>Reembolso não encontrado.</p>
-          </div>
-        )}
+
+          ) : (
+
+            /* not found */
+            <div className="flex flex-col items-center justify-center gap-4 py-20">
+
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-zinc-800/50 border border-zinc-700/50">
+                <FileText size={24} className="text-zinc-500" />
+              </div>
+
+              <p className="text-sm text-zinc-500">
+                Reembolso não encontrado.
+              </p>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default ReimbursementDetails;
+export default ReimbursementDetails

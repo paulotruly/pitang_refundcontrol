@@ -33,7 +33,7 @@ export default function PaginationComponent({ currentPage, totalPages, onPageCha
   // if (pages.length === 0) { return null }
 
   return (
-    <Pagination className="text-slate-400 select-none bg-black">
+    <Pagination className="text-zinc-400 select-none">
       <PaginationContent className="gap-1">
 
         <PaginationItem>
@@ -45,14 +45,16 @@ export default function PaginationComponent({ currentPage, totalPages, onPageCha
               }
             }}
             href="#"
-            className={currentPage === 1 ? "opacity-50 pointer-events-none" : ""}
+            className={`border border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-zinc-700 transition-colors ${
+              currentPage === 1 ? "opacity-50 pointer-events-none" : ""
+            }`}
           />
         </PaginationItem>
 
         {pages.map((page, index) => (
           <PaginationItem key={index}>
             {page === "ellipsis" ? (
-              <PaginationEllipsis className="text-slate-600" />
+              <PaginationEllipsis className="text-zinc-600" />
             ) : (
               <PaginationLink
                 onClick={(e) => {
@@ -62,8 +64,8 @@ export default function PaginationComponent({ currentPage, totalPages, onPageCha
                 isActive={page === currentPage}
                 href="#"
                 className={page === currentPage 
-                  ? "bg-slate-700 text-slate-100 hover:bg-slate-600" 
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                  ? "bg-white text-zinc-950 border border-white hover:bg-zinc-100 font-medium" 
+                  : "border border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-zinc-700 transition-colors"
                 }
               >
                 {page}
@@ -81,7 +83,9 @@ export default function PaginationComponent({ currentPage, totalPages, onPageCha
               }
             }}
             href="#"
-            className={currentPage === totalPages ? "opacity-50 pointer-events-none" : ""}
+            className={`border border-zinc-800 bg-zinc-900/50 text-zinc-400 hover:bg-zinc-800 hover:text-white hover:border-zinc-700 transition-colors ${
+              currentPage === totalPages ? "opacity-50 pointer-events-none" : ""
+            }`}
           />
         </PaginationItem>
 
