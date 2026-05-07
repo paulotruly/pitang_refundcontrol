@@ -6,7 +6,7 @@ Sistema web para controle e gerenciamento de solicitações de reembolso corpora
 ## Passo inicial: clonar o repositório
 Antes de configurar o backend ou o frontend, clone este repositório em sua máquina local:
 ```bash
-git clone <https://github.com/paulotruly/pitang_refundcontrol>
+git clone https://github.com/paulotruly/pitang_refundcontrol
 cd pitang_refundcontrol
 ```
 
@@ -148,7 +148,10 @@ As principais escolhas tecnológicas foram feitas visando segurança, manutenibi
 - Seed script com dados iniciais.
 - Refresh token para renovação de sessão.
 - Soft delete em categorias e solicitações.
+- Download de anexos
+- Dark mode toggle
+- Animações de transição entre rotas e skeleton loaders.
 
 ## Lista do que ficou pendente
 - **Backend**: Docker Compose para containerização com PostgreSQL, collection exportável do Postman.
-- **Frontend**: Download de anexos, dark mode toggle, responsividade completa, testes expandidos, consumo de API externa, animações de transição, skeleton loaders.
+- **Frontend**: Responsividade completa, testes expandidos, consumo de API externa.
