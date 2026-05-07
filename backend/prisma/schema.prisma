@@ -112,4 +112,3 @@ model RefreshToken {
   expiraEm  DateTime
   revogado  Boolean  @default(false)
 }
-
