@@ -61,5 +61,38 @@ describe("POST /auth/login", () => {
     expect(res.status).toBe(401); // espera um 401 Unauthorized
   });
 
+describe("POST /auth/register", () => {
+  // registro de novo usuário com dados válidos
+  it("cadastro com dados válidos retorna 201 e tokens", async () => {
+    const res = await request(app)
+      .post("/auth/register")
+      .send({
+        nome: "Novo Usuário",
+        email: "novo@register.com",
+        senha: "senha123",
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty("accessToken");
+    expect(res.body).toHaveProperty("refreshToken");
+    expect(res.body.user.email).toBe("novo@register.com");
+    expect(res.body.user.perfil).toBe("COLABORADOR");
+  });
+
+  // registro com email já existente
+  it("email duplicado retorna 400", async () => {
+    await request(app)
+      .post("/auth/register")
+      .send({ nome: "Primeiro", email: "dup@register.com", senha: "senha123" });
+
+    const res = await request(app)
+      .post("/auth/register")
+      .send({ nome: "Segundo", email: "dup@register.com", senha: "senha123" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toContain("Email já está em uso");
+  });
+});
+
 
 });

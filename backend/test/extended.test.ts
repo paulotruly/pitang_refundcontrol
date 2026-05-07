@@ -313,7 +313,7 @@ describe("POST /reimbursement/:id/submit - boqueio sem anexo", () => {
   });
 });
 
-describe("DELETE /category/:id - Soft delete", () => {
+describe("DELETE /categories/:id - Soft delete", () => {
   let adminToken: string;
   let categoriaId: string;
 
@@ -325,7 +325,7 @@ describe("DELETE /category/:id - Soft delete", () => {
   });
 
   it("deleta categoria (soft delete) retorna 200", async () => {
-    const res = await request(app).delete(`/category/${categoriaId}`).set("Authorization", `Bearer ${adminToken}`);
+    const res = await request(app).delete(`/categories/${categoriaId}`).set("Authorization", `Bearer ${adminToken}`);
     expect(res.status).toBe(200);
     expect(res.body.message).toBe("Categoria deletada com sucesso");
     const cat = await prisma.category.findUnique({ where: { id: categoriaId } });
@@ -334,21 +334,21 @@ describe("DELETE /category/:id - Soft delete", () => {
   });
 
   it("categoria deletada nao aparece na listagem", async () => {
-    await request(app).delete(`/category/${categoriaId}`).set("Authorization", `Bearer ${adminToken}`);
-    const res = await request(app).get("/category").set("Authorization", `Bearer ${adminToken}`);
-    expect(res.body.find((c: any) => c.id === categoriaId)).toBeUndefined();
+    await request(app).delete(`/categories/${categoriaId}`).set("Authorization", `Bearer ${adminToken}`);
+    const res = await request(app).get("/categories").set("Authorization", `Bearer ${adminToken}`);
+    expect(res.body.dados.find((c: any) => c.id === categoriaId)).toBeUndefined();
   });
 
   it("nao e possivel criar solicitação com categoria deletada", async () => {
     const colab = await createTestUser(Perfil.COLABORADOR);
-    await request(app).delete(`/category/${categoriaId}`).set("Authorization", `Bearer ${adminToken}`);
+    await request(app).delete(`/categories/${categoriaId}`).set("Authorization", `Bearer ${adminToken}`);
     const res = await request(app).post("/reimbursement").set("Authorization", `Bearer ${colab.token}`).send({ categoriaId, descricao: "Teste", valor: 50, dataDespesa: "2025-01-01" });
     expect(res.status).toBe(400);
   });
 
   it("deletar categoria ja deletada retorna 404", async () => {
-    await request(app).delete(`/category/${categoriaId}`).set("Authorization", `Bearer ${adminToken}`);
-    const res = await request(app).delete(`/category/${categoriaId}`).set("Authorization", `Bearer ${adminToken}`);
+    await request(app).delete(`/categories/${categoriaId}`).set("Authorization", `Bearer ${adminToken}`);
+    const res = await request(app).delete(`/categories/${categoriaId}`).set("Authorization", `Bearer ${adminToken}`);
     expect(res.status).toBe(404);
   });
 });

@@ -21,6 +21,7 @@ export const createCategory = async (req: Request, res: Response) => {
 
 export const getCategory = async (req: Request, res: Response) => {
     const categories = await prisma.category.findMany({
+        where: { deletadoEm: null },
     });
 
     res.json({

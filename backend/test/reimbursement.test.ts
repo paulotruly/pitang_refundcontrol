@@ -319,3 +319,145 @@ describe("GET /reimbursement/:id/history", () => {
     expect(res.body.length).toBeGreaterThan(0); // deve ter histórico de criação, envio, aprovação
   });
 });
+
+describe("GET /reimbursement/:id", () => {
+  let colabToken: string;
+  let colabId: string;
+  let categoriaId: string;
+  let reembolsoId: string;
+
+  beforeEach(async () => {
+    const colab = await createTestUser(Perfil.COLABORADOR);
+    colabToken = colab.token;
+    colabId = colab.user.id;
+    const cat = await createTestCategory();
+    categoriaId = cat.id;
+    const reembolso = await createTestReimbursement(colabId, categoriaId);
+    reembolsoId = reembolso.id;
+  });
+
+  // busca solicitação específica pelo ID
+  it("retorna solicitação por ID (200)", async () => {
+    const res = await request(app)
+      .get(`/reimbursement/${reembolsoId}`)
+      .set("Authorization", `Bearer ${colabToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBe(reembolsoId);
+    expect(res.body.descricao).toBe("Reembolso teste");
+    expect(res.body).toHaveProperty("categoria");
+    expect(res.body).toHaveProperty("solicitante");
+  });
+
+  // ID inexistente retorna 404
+  it("UUID inexistente retorna 404", async () => {
+    const fakeUuid = "00000000-0000-0000-0000-000000000000";
+    const res = await request(app)
+      .get(`/reimbursement/${fakeUuid}`)
+      .set("Authorization", `Bearer ${colabToken}`);
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe("PUT /reimbursement/:id", () => {
+  let colabToken: string;
+  let colabId: string;
+  let categoriaId: string;
+  let reembolsoId: string;
+
+  beforeEach(async () => {
+    const colab = await createTestUser(Perfil.COLABORADOR);
+    colabToken = colab.token;
+    colabId = colab.user.id;
+    const cat = await createTestCategory();
+    categoriaId = cat.id;
+    const reembolso = await createTestReimbursement(colabId, categoriaId);
+    reembolsoId = reembolso.id;
+  });
+
+  // atualiza descrição de um rascunho
+  it("atualiza descrição de solicitação em RASCUNHO (200)", async () => {
+    const res = await request(app)
+      .put(`/reimbursement/${reembolsoId}`)
+      .set("Authorization", `Bearer ${colabToken}`)
+      .send({ descricao: "Descrição atualizada" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.descricao).toBe("Descrição atualizada");
+  });
+
+  // outro colaborador não pode atualizar solicitação alheia
+  it("outro colaborador recebe 403 ao atualizar", async () => {
+    const outro = await createTestUser(Perfil.COLABORADOR);
+    const res = await request(app)
+      .put(`/reimbursement/${reembolsoId}`)
+      .set("Authorization", `Bearer ${outro.token}`)
+      .send({ descricao: "Tentativa" });
+
+    expect(res.status).toBe(403);
+  });
+});
+
+describe("POST /reimbursement/:id/cancel", () => {
+  let colabToken: string;
+  let colabId: string;
+  let categoriaId: string;
+  let reembolsoId: string;
+
+  beforeEach(async () => {
+    const colab = await createTestUser(Perfil.COLABORADOR);
+    colabToken = colab.token;
+    colabId = colab.user.id;
+    const cat = await createTestCategory();
+    categoriaId = cat.id;
+    const reembolso = await createTestReimbursement(colabId, categoriaId);
+    reembolsoId = reembolso.id;
+  });
+
+  // cancela solicitação em RASCUNHO
+  it("cancela solicitação em RASCUNHO (200)", async () => {
+    const res = await request(app)
+      .post(`/reimbursement/${reembolsoId}/cancel`)
+      .set("Authorization", `Bearer ${colabToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("CANCELADO");
+  });
+
+  // ADMIN pode cancelar qualquer solicitação
+  it("ADMIN cancela solicitação de outro usuário (200)", async () => {
+    const admin = await createTestUser(Perfil.ADMIN);
+    const res = await request(app)
+      .post(`/reimbursement/${reembolsoId}/cancel`)
+      .set("Authorization", `Bearer ${admin.token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("CANCELADO");
+  });
+
+  // solicitação já cancelada não pode ser cancelada de novo
+  it("solicitação PAGA não pode ser cancelada (400)", async () => {
+    // cria aprovação e pagamento completos
+    const gestor = await createTestUser(Perfil.GESTOR);
+    const financeiro = await createTestUser(Perfil.FINANCEIRO);
+
+    await request(app)
+      .post(`/reimbursement/${reembolsoId}/submit`)
+      .set("Authorization", `Bearer ${colabToken}`);
+
+    await request(app)
+      .post(`/reimbursement/${reembolsoId}/approve`)
+      .set("Authorization", `Bearer ${gestor.token}`);
+
+    await request(app)
+      .post(`/reimbursement/${reembolsoId}/pay`)
+      .set("Authorization", `Bearer ${financeiro.token}`);
+
+    const res = await request(app)
+      .post(`/reimbursement/${reembolsoId}/cancel`)
+      .set("Authorization", `Bearer ${colabToken}`);
+
+    expect(res.status).toBe(400);
+  });
+});

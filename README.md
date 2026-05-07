@@ -62,6 +62,40 @@ O frontend utiliza React, Vite, TypeScript, Tailwind CSS e ShadcnUI. Certifique-
    ```
 O frontend estará disponível em `http://localhost:5173` por padrão.
 
+## Instruções para rodar os testes
+
+### Backend (Jest + Supertest)
+Os testes de backend cobrem autenticação, CRUD de usuários/categorias/solicitações, fluxo de transições de status, regras de negócio (limite por categoria, bloqueio de data futura, anexo obrigatório acima de R$100), soft delete, refresh token e logout.
+
+1. Acesse o diretório do backend:
+   ```bash
+   cd backend
+   ```
+2. Execute os testes:
+   ```bash
+   npm test
+   ```
+   Para modo *watch* (re-executa a cada alteração):
+   ```bash
+   npm run test:watch
+   ```
+
+> Os testes usam um banco SQLite separado (`prisma/test.db`) configurado via variável de ambiente `DATABASE_URL` no script `test` do `package.json`. O `setup.ts` faz o `db push --force-reset` automaticamente na primeira execução e limpa todas as tabelas entre cada teste para garantir isolamento.
+
+### Frontend (Jest + React Testing Library)
+Os testes de frontend cobrem componentes de formulário (login, cadastro, criação de reembolso), tabela de dados, badges de status, proteção de rotas e cabeçalho com navegação por perfil.
+
+1. Acesse o diretório do frontend:
+   ```bash
+   cd frontend
+   ```
+2. Execute os testes:
+   ```bash
+   npm test
+   ```
+
+> Os testes utilizam mocks das chamadas de API (axios/api do projeto), do contexto de autenticação e do roteador para isolar os componentes.
+
 ## Variáveis de ambiente
 Crie arquivos `.env` nas pastas de backend e frontend baseados nos exemplos abaixo:
 
@@ -142,16 +176,18 @@ As principais escolhas tecnológicas foram feitas visando segurança, manutenibi
 - **Frontend**: Telas de login, cadastro, dashboard, criação/edição/detalhe de solicitações, gestão de categorias (admin), fluxos de aprovação/rejeição/pagamento, histórico, navegação protegida por perfil, tratamento de estados de loading/erro/vazio, testes básicos com Jest/RTL.
 
 ### Diferenciais
-- Paginação, filtros (status, categoria, nome de colaborador) e ordenação em listagens.
-- Upload real de anexos com multer.
-- Limite de valor configurável por categoria, bloqueio de despesas futuras e solicitações sem anexo acima de valor limite.
-- Seed script com dados iniciais.
-- Refresh token para renovação de sessão.
-- Soft delete em categorias e solicitações.
+- Paginação, filtros (status, categoria, nome de colaborador) e ordenação em listagens
+- Upload real de anexos com multer
+- Limite de valor configurável por categoria, bloqueio de despesas futuras e solicitações sem anexo acima de valor limite
+- Seed script com dados iniciais
+- Refresh token para renovação de sessão
+- Soft delete em categorias e solicitações
 - Download de anexos
 - Dark mode toggle
-- Animações de transição entre rotas e skeleton loaders.
+- Animações de transição entre rotas e skeleton loaders
+- Testes expandidos
+- Consumo de API externa
 
 ## Lista do que ficou pendente
 - **Backend**: Docker Compose para containerização com PostgreSQL, collection exportável do Postman.
-- **Frontend**: Responsividade completa, testes expandidos, consumo de API externa.
+- **Frontend**: Responsividade completa
