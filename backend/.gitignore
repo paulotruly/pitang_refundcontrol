@@ -4,4 +4,3 @@ node_modules
 generated/prisma
 prisma/test.db
 postman_collection.json
-prisma/dev.db
