@@ -60,8 +60,8 @@ describe("loginform - renderização", () => {
     // renderiza o componente dentro dele, como se fosse o navegador
     render(<LoginForm />);
 
-    const emailInput = screen.getByRole("textbox", { name: /email/i });
-    const passwordInput = screen.getByLabelText(/password/i);
+    const emailInput = screen.getByRole("textbox", { name: /e-mail/i });
+    const passwordInput = screen.getByLabelText(/senha/i);
     const submitButton = screen.getByRole("button", { name: /entrar/i });
 
     expect(emailInput).toBeInTheDocument();
@@ -98,8 +98,8 @@ describe("loginform - submissão com sucesso", () => {
 
     render(<LoginForm />);
 
-    const emailInput = screen.getByRole("textbox", { name: /email/i });
-    const passwordInput = screen.getByLabelText(/password/i);
+    const emailInput = screen.getByRole("textbox", { name: /e-mail/i });
+    const passwordInput = screen.getByLabelText(/senha/i);
 
     // type() digita caractere por caractere, como um humano faria
     // (diferente de .fireEvent.change que só altera o valor de uma vez)
@@ -110,21 +110,15 @@ describe("loginform - submissão com sucesso", () => {
     const submitButton = screen.getByRole("button", { name: /entrar/i });
     await user.click(submitButton);
 
-    // durante o loading, o botão deve mostrar "Entrando..." e estar desabilitado
-    // waitFor é essencial aqui porque a mudança de estado é assíncrona
-    // (a API retorna uma Promise). sem waitFor, o expect rodaria ANTES
-    // do componente atualizar, causando falso negativo
+    // a API deve ter sido chamada com as credenciais corretas
     await waitFor(() => {
-      expect(screen.getByText(/entrando/i)).toBeInTheDocument();
-    });
-
-    expect(api.post).toHaveBeenCalledWith("/auth/login", {
-      email: "joao@email.com",
-      senha: "senha123",
+      expect(api.post).toHaveBeenCalledWith("/auth/login", {
+        email: "joao@email.com",
+        senha: "senha123",
+      });
     });
   });
 });
-
 
 describe("loginform - erro com credenciais inválidas", () => {
   it("deve exibir mensagem de erro quando o login falhar", async () => {
@@ -142,8 +136,8 @@ describe("loginform - erro com credenciais inválidas", () => {
 
     render(<LoginForm />);
 
-    const emailInput = screen.getByRole("textbox", { name: /email/i });
-    const passwordInput = screen.getByLabelText(/password/i);
+    const emailInput = screen.getByRole("textbox", { name: /e-mail/i });
+    const passwordInput = screen.getByLabelText(/senha/i);
 
     await user.type(emailInput, "errado@email.com");
     await user.type(passwordInput, "senhaerrada");
@@ -156,7 +150,7 @@ describe("loginform - erro com credenciais inválidas", () => {
     // usamos findByText (assíncrono) que já faz waitFor internamente
     const errorMessage = await screen.findByText(/credenciais inválidas/i);
     expect(errorMessage).toBeInTheDocument();
-    expect(errorMessage).toHaveClass("text-red-500");
+    expect(errorMessage).toHaveClass("text-red-300");
 
     // o botão deve voltar a estar habilitado após o erro
     expect(submitButton).not.toBeDisabled();

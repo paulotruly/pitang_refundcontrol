@@ -304,8 +304,12 @@ function DataTable() {
                     </TableCell>
                   </TableRow>
                 ) : loading ? (
-                  // Skeleton loader para as linhas da tabela (3 linhas simulando dados)
                   <>
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        <p className="text-sm text-zinc-500">Carregando reembolsos...</p>
+                      </TableCell>
+                    </TableRow>
                     {[...Array(3)].map((_, i) => (
                       <TableRow key={i}>
                         <TableCell colSpan={7}>

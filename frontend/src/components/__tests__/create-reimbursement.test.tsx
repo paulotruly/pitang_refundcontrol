@@ -78,7 +78,7 @@ describe("CreateReimbursement - campos obrigatórios", () => {
       return (
         element?.tagName.toLowerCase() === "p" && // garante que é o parágrafo de erro, não a opção do select
         content.includes("Selecione uma categoria") && // verifica o texto do erro
-        element.classList.contains("text-red-400") // garante que é o elemento estilizado como erro
+        element.classList.contains("text-red-300") // garante que é o elemento estilizado como erro
       );
     });
     expect(errorMessage).toBeInTheDocument(); // o erro deve estar visível para o usuário

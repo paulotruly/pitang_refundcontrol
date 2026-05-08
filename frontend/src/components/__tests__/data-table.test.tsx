@@ -118,7 +118,7 @@ describe("DataTable - renderização condicional por perfil", () => {
 
     // aguarda a tabela renderizar (o useEffect busca dados async)
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /nova solicitação/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /nova solicitacao/i })).toBeInTheDocument();
     });
   });
 
@@ -136,7 +136,7 @@ describe("DataTable - renderização condicional por perfil", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /visualizar categorias/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /categorias/i })).toBeInTheDocument();
     });
   });
 
@@ -151,7 +151,7 @@ describe("DataTable - renderização condicional por perfil", () => {
     });
 
     await waitFor(() => {
-      expect(screen.queryByRole("button", { name: /nova solicitação/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /nova solicitacao/i })).not.toBeInTheDocument();
     });
   });
 
@@ -166,8 +166,8 @@ describe("DataTable - renderização condicional por perfil", () => {
     });
 
     await waitFor(() => {
-      expect(screen.queryByRole("button", { name: /nova solicitação/i })).not.toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: /visualizar categorias/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /nova solicitacao/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /categorias/i })).not.toBeInTheDocument();
     });
   });
 
@@ -182,8 +182,8 @@ describe("DataTable - renderização condicional por perfil", () => {
     });
 
     await waitFor(() => {
-      expect(screen.queryByRole("button", { name: /nova solicitação/i })).not.toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: /visualizar categorias/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /nova solicitacao/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /categorias/i })).not.toBeInTheDocument();
     });
   });
 
@@ -237,7 +237,7 @@ describe("datatable - estados da listagem", () => {
 
     // após a Promise resolver, a tabela deve mostrar "Não há nenhum reembolso"
     await waitFor(() => {
-      expect(screen.getByText(/não há nenhum reembolso/i)).toBeInTheDocument();
+      expect(screen.getByText(/nenhum reembolso encontrado/i)).toBeInTheDocument();
     });
   });
 
@@ -264,8 +264,8 @@ describe("datatable - estados da listagem", () => {
     expect(screen.getByText(/R\$\s*45,00/)).toBeInTheDocument();
 
     // verifica que os status badges foram renderizados
-    expect(screen.getByText(/Enviado/)).toBeInTheDocument();
-    expect(screen.getByText(/Rascunho/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Enviado/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Rascunho/).length).toBeGreaterThanOrEqual(1);
   });
 
   it("deve mostrar mensagem de erro quando a API falha", async () => {

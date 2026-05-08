@@ -4,3 +4,5 @@ node_modules
 generated/prisma
 prisma/test.db
 postman_collection.json
+dev.db
+20260508053101_dados
