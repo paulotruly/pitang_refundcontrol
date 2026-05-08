@@ -25,6 +25,12 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retried) { // se foi erro de token expirado/inválido e nao tentou reenviar
       originalRequest._retried = true; // marca que tentou
       const refreshToken = getRefreshToken(); // busca o refresh token
+      if (originalRequest.url === "/auth/login") { // se for a rota de login, não tenta renovar
+        removeToken();
+        removeRefreshToken();
+        removeUserId();
+        return Promise.reject(error);
+      }
       if (!refreshToken) { // se não tiver, limpa tudo
         removeToken();
         removeRefreshToken();

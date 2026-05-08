@@ -107,7 +107,11 @@ export const refresh = async (req: Request, res: Response) => {
         SECRET,
         { expiresIn: '15m' }
     );
-    const newRefreshToken = jwt.sign({ sub: storedToken.usuario.id }, SECRET, { expiresIn: '7d' });
+    const newRefreshToken = jwt.sign(
+        { sub: storedToken.usuario.id, jti: crypto.randomUUID() }, // jti é um ID único pro token, ajuda a gerenciar/revogar
+        REFRESH_SECRET,
+        { expiresIn: '7d' }
+    );
 
     // salva novo refresh token no banco
     await prisma.refreshToken.create({

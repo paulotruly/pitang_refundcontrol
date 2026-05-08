@@ -52,7 +52,6 @@ export function LoginForm({
     } catch (err: any) {
       const message =
         err.response?.data?.message || "Erro na autenticação"
-
       setError(message)
     } finally {
       setIsLoading(false)
